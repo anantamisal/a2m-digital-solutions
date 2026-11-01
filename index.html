@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A2M Digital Solutions - Professional Web Development and App Development Services">
+    <meta name="keywords" content="web development, app development, digital solutions, software development">
+    <title>A2M Digital Solutions | Web & App Development Services</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <img src="company_logo1.png" alt="A2M Digital Solutions Logo" class="logo-image">
+                <span class="logo-text">A2M Digital Solutions</span>
+            </a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#services" class="nav-link">Services</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+                <li><a href="#contact" class="nav-link nav-cta">Get a Quote</a></li>
+            </ul>
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="hamburger"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-background"></div>
+        <div class="hero-container">
+            <div class="hero-content">
+                <span class="hero-badge">Professional Digital Solutions</span>
+                <h1 class="hero-title">
+                    We Build <span class="highlight">Digital Experiences</span> That Drive Growth
+                </h1>
+                <p class="hero-description">
+                    A2M Digital Solutions delivers custom web and mobile applications tailored to your business needs.
+                    From concept to launch, we transform ideas into powerful digital products.
+                </p>
+                <div class="hero-buttons">
+                    <a href="#contact" class="btn btn-primary">Start Your Project</a>
+                    <a href="#services" class="btn btn-secondary">View Services</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Projects Delivered</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">30+</span>
+                        <span class="stat-label">Happy Clients</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">5+</span>
+                        <span class="stat-label">Years Experience</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-card">
+                    <div class="card-icon">💻</div>
+                    <h3>Web Development</h3>
+                    <p>Modern, responsive websites</p>
+                </div>
+                <div class="hero-card">
+                    <div class="card-icon">📱</div>
+                    <h3>App Development</h3>
+                    <p>iOS & Android applications</p>
+                </div>
+                <div class="hero-card">
+                    <div class="card-icon">☁️</div>
+                    <h3>Cloud Solutions</h3>
+                    <p>Scalable cloud architecture</p>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll Down</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M19 12l-7 7-7-7"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Our Services</span>
+                <h2 class="section-title">Comprehensive Digital Solutions</h2>
+                <p class="section-description">
+                    We offer end-to-end development services to bring your digital vision to life
+                </p>
+            </div>
+            <div class="services-grid">
+                <article class="service-card">
+                    <div class="service-icon">🌐</div>
+                    <h3>Custom Web Development</h3>
+                    <p>Responsive, SEO-friendly websites built with modern technologies like React, Vue, Node.js, and more.</p>
+                    <ul class="service-features">
+                        <li>E-commerce Websites</li>
+                        <li>Corporate Websites</li>
+                        <li>Web Applications</li>
+                        <li>CMS Development</li>
+                    </ul>
+                    <a href="#contact" class="service-link" data-service="web-development">Learn More →</a>
+                </article>
+                <article class="service-card">
+                    <div class="service-icon">📱</div>
+                    <h3>Mobile App Development</h3>
+                    <p>Native and cross-platform mobile applications for iOS and Android using React Native, Flutter, and native SDKs.</p>
+                    <ul class="service-features">
+                        <li>iOS App Development</li>
+                        <li>Android App Development</li>
+                        <li>Cross-platform Apps</li>
+                        <li>App Maintenance</li>
+                    </ul>
+                    <a href="#contact" class="service-link" data-service="mobile-app">Learn More →</a>
+                </article>
+                <article class="service-card">
+                    <div class="service-icon">⚙️</div>
+                    <h3>Backend Development</h3>
+                    <p>Robust server-side solutions with APIs, databases, and cloud infrastructure for scalable applications.</p>
+                    <ul class="service-features">
+                        <li>RESTful APIs</li>
+                        <li>GraphQL APIs</li>
+                        <li>Database Design</li>
+                        <li>Cloud Deployment</li>
+                    </ul>
+                    <a href="#contact" class="service-link" data-service="backend">Learn More →</a>
+                </article>
+                <article class="service-card">
+                    <div class="service-icon">🎨</div>
+                    <h3>UI/UX Design</h3>
+                    <p>User-centric design that creates intuitive and engaging digital experiences for your users.</p>
+                    <ul class="service-features">
+                        <li>User Research</li>
+                        <li>Wireframing</li>
+                        <li>Prototyping</li>
+                        <li>Design Systems</li>
+                    </ul>
+                    <a href="#contact" class="service-link" data-service="ui-ux">Learn More →</a>
+                </article>
+                <article class="service-card">
+                    <div class="service-icon">🔧</div>
+                    <h3>DevOps & Maintenance</h3>
+                    <p>Continuous integration, deployment, and ongoing maintenance to keep your applications running smoothly.</p>
+                    <ul class="service-features">
+                        <li>CI/CD Pipelines</li>
+                        <li>Server Management</li>
+                        <li>Performance Optimization</li>
+                        <li>Security Audits</li>
+                    </ul>
+                    <a href="#contact" class="service-link" data-service="devops">Learn More →</a>
+                </article>
+                <article class="service-card">
+                    <div class="service-icon">💬</div>
+                    <h3>Consultation & Strategy</h3>
+                    <p>Expert guidance to help you make the right technology decisions for your business growth.</p>
+                    <ul class="service-features">
+                        <li>Tech Stack Selection</li>
+                        <li>Project Planning</li>
+                        <li>Code Reviews</li>
+                        <li>Digital Strategy</li>
+                    </ul>
+                    <a href="#contact" class="service-link" data-service="consultation">Learn More →</a>
+                </article>
+                <article class="service-card featured">
+                    <div class="service-icon">🤖</div>
+                    <h3>AI Agent Development</h3>
+                    <p>Custom AI agents and intelligent automation solutions using LLMs, RAG, and agentic workflows.</p>
+                    <ul class="service-features">
+                        <li>Custom AI Agents</li>
+                        <li>RAG & Knowledge Bases</li>
+                        <li>Workflow Automation</li>
+                        <li>Multi-Agent Systems</li>
+                    </ul>
+                    <a href="#contact" class="service-link" data-service="ai-agent">Learn More →</a>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="process" id="process">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">Our Process</span>
+                <h2 class="section-title">How We Work</h2>
+                <p class="section-description">
+                    A streamlined process ensuring quality delivery on time and within budget
+                </p>
+            </div>
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">01</div>
+                    <div class="step-content">
+                        <h3>Discovery & Planning</h3>
+                        <p>We understand your requirements, analyze your business, and create a detailed project roadmap.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">02</div>
+                    <div class="step-content">
+                        <h3>Design & Prototyping</h3>
+                        <p>Our designers create wireframes and interactive prototypes for your approval before development begins.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">03</div>
+                    <div class="step-content">
+                        <h3>Development</h3>
+                        <p>Clean, scalable code following best practices with regular updates and transparent communication.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">04</div>
+                    <div class="step-content">
+                        <h3>Testing & QA</h3>
+                        <p>Rigorous testing across devices and browsers to ensure a bug-free, performant product.</p>
+                    </div>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">05</div>
+                    <div class="step-content">
+                        <h3>Launch & Support</h3>
+                        <p>Smooth deployment to production with ongoing maintenance and support packages available.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-image">
+                    <div class="about-visual">
+                        <div class="floating-card card-1">
+                            <span>⚡</span>
+                            <span>Fast Delivery</span>
+                        </div>
+                        <div class="floating-card card-2">
+                            <span>🔒</span>
+                            <span>Secure Code</span>
+                        </div>
+                        <div class="floating-card card-3">
+                            <span>📈</span>
+                            <span>Scalable</span>
+                        </div>
+                        <div class="floating-card card-4">
+                            <span>🤝</span>
+                            <span>Support</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-text">
+                    <span class="section-badge">About Us</span>
+                    <h2 class="section-title">Why Choose A2M Digital Solutions?</h2>
+                    <p class="about-description">
+                        We are a team of passionate developers, designers, and strategists dedicated to building
+                        exceptional digital products. Our mission is to help businesses thrive in the digital age
+                        through innovative technology solutions.
+                    </p>
+                    <div class="about-values">
+                        <div class="value">
+                            <div class="value-icon">🎯</div>
+                            <div>
+                                <h4>Client-Centric Approach</h4>
+                                <p>Your success is our priority. We listen, understand, and deliver solutions that meet your unique needs.</p>
+                            </div>
+                        </div>
+                        <div class="value">
+                            <div class="value-icon">💡</div>
+                            <div>
+                                <h4>Innovation Driven</h4>
+                                <p>We stay ahead of technology trends to provide you with cutting-edge solutions that give you a competitive edge.</p>
+                            </div>
+                        </div>
+                        <div class="value">
+                            <div class="value-icon">✨</div>
+                            <div>
+                                <h4>Quality Assurance</h4>
+                                <p>Every line of code is reviewed, tested, and optimized to ensure the highest standards of quality.</p>
+                            </div>
+                        </div>
+                        <div class="value">
+                            <div class="value-icon">🤝</div>
+                            <div>
+                                <h4>Transparent Communication</h4>
+                                <p>Regular updates, clear timelines, and honest feedback throughout the entire project lifecycle.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact/Inquiry Section -->
+    <section class="contact" id="contact">
+        <div class="container">
+            <div class="contact-wrapper">
+                <div class="contact-info">
+                    <span class="section-badge">Get In Touch</span>
+                    <h2 class="section-title">Let's Build Something Great Together</h2>
+                    <p class="contact-description">
+                        Have a project in mind? We'd love to hear about it. Fill out the form or reach out directly.
+                    </p>
+                    <div class="contact-details">
+                        <!-- <div class="contact-item">
+                            <div class="contact-icon">📧</div>
+                            <div>
+                                <h4>Email Us</h4>
+                                <a href="mailto:info@a2mdigitalsolutions.com">info@a2mdigitalsolutions.com</a>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">📞</div>
+                            <div>
+                                <h4>Call Us</h4>
+                                <a href="tel:+918208214218">+91 82082 14218</a>
+                            </div>
+                        </div> -->
+                        <div class="contact-item">
+                            <div class="contact-icon">💬</div>
+                            <div>
+                                <h4>WhatsApp</h4>
+                                <a href="https://wa.me/918208214218?text=Hello%20A2M%20Digital%20Solutions%2C%20I%20have%20a%20project%20inquiry" target="_blank" rel="noopener">Chat on WhatsApp</a>
+                            </div>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-icon">📍</div>
+                            <div>
+                                <h4>Location</h4>
+                                <span>Available Worldwide</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <form class="contact-form" id="inquiry-form" action="#inquiry">
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required placeholder="john@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+1 (234) 567-890">
+                    </div>
+                    <div class="form-group">
+                        <label for="service">Service Interested In *</label>
+                        <select id="service" name="service" required>
+                            <option value="">Select a service</option>
+                            <option value="web-development">Web Development</option>
+                            <option value="mobile-app">Mobile App Development</option>
+                            <option value="backend">Backend Development</option>
+                            <option value="ui-ux">UI/UX Design</option>
+                            <option value="devops">DevOps & Maintenance</option>
+                            <option value="consultation">Consultation & Strategy</option>
+                            <option value="ai-agent">AI Agent Development</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="budget">Project Budget</label>
+                        <select id="budget" name="budget">
+                            <option value="">Select budget range</option>
+                            <option value="under-5k">Under $5,000</option>
+                            <option value="5k-15k">$5,000 - $15,000</option>
+                            <option value="15k-30k">$15,000 - $30,000</option>
+                            <option value="30k-50k">$30,000 - $50,000</option>
+                            <option value="50k-plus">$50,000+</option>
+                            <option value="not-sure">Not sure yet</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="timeline">Expected Timeline</label>
+                        <select id="timeline" name="timeline">
+                            <option value="">Select timeline</option>
+                            <option value="asap">ASAP</option>
+                            <option value="1-2-months">1-2 Months</option>
+                            <option value="3-6-months">3-6 Months</option>
+                            <option value="6-months-plus">6+ Months</option>
+                            <option value="flexible">Flexible</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Project Details *</label>
+                        <textarea id="message" name="message" rows="5" required placeholder="Tell us about your project, goals, and any specific requirements..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-full" id="submit-email">
+                            <span>📧</span> Send via Email
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-full" id="submit-whatsapp">
+                            <span>💬</span> Send via WhatsApp
+                        </button>
+                    </div>
+                    <p class="form-disclaimer">By submitting, you agree to our <a href="#contact">Privacy Policy</a> and <a href="#contact">Terms of Service</a>.</p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Modal -->
+    <div class="modal" id="success-modal">
+        <div class="modal-content">
+            <div class="modal-icon">✓</div>
+            <h3>Inquiry Submitted Successfully!</h3>
+            <p>Thank you for reaching out to A2M Digital Solutions. We'll review your project details and get back to you within 24 hours.</p>
+            <button class="btn btn-primary" id="close-modal">Close</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <img src="company_logo1.png" alt="A2M Digital Solutions" class="footer-logo">
+                    <p>Building digital experiences that drive business growth through innovative web and mobile solutions.</p>
+                    <div class="social-links">
+                        <a href="https://linkedin.com/company/a2m-digital-solutions" class="social-link" aria-label="LinkedIn" target="_blank" rel="noopener">💼</a>
+                        <a href="https://twitter.com/a2mdigitalsolutions" class="social-link" aria-label="Twitter" target="_blank" rel="noopener">🐦</a>
+                        <a href="https://github.com/a2m-digital-solutions" class="social-link" aria-label="GitHub" target="_blank" rel="noopener">💻</a>
+                        <a href="mailto:info@a2mdigitalsolutions.com" class="social-link" aria-label="Email">📧</a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#services">Web Development</a></li>
+                        <li><a href="#services">Mobile App Development</a></li>
+                        <li><a href="#services">Backend Development</a></li>
+                        <li><a href="#services">UI/UX Design</a></li>
+                        <li><a href="#services">DevOps & Maintenance</a></li>
+                        <li><a href="#services">AI Agent Development</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#process">Our Process</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="#contact">Careers</a></li>
+                        <li><a href="#contact">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#contact">Privacy Policy</a></li>
+                        <li><a href="#contact">Terms of Service</a></li>
+                        <li><a href="#contact">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 A2M Digital Solutions. All rights reserved.</p>
+                <p>Built with ❤️ for the digital world</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

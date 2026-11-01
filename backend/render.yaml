@@ -1,0 +1,53 @@
+# Render.com Blueprint for A2M Digital Solutions Backend
+# Deploy for FREE on Render.com
+# 1. Push this repo to GitHub
+# 2. Connect to Render.com
+# 3. Create new Blueprint from this file
+
+services:
+  - type: web
+    name: a2m-digital-solutions-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon  # or frankfurt, singapore, etc.
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: DATABASE_URL
+        value: sqlite:///./data/inquiries.db
+      # Email configuration - UPDATE THESE
+      - key: EMAIL_PROVIDER
+        value: gmail
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USERNAME
+        sync: false  # Set in Render dashboard
+      - key: SMTP_PASSWORD
+        sync: false  # Set in Render dashboard
+      - key: FROM_EMAIL
+        value: info@a2mdigitalsolutions.com
+      - key: FROM_NAME
+        value: A2M Digital Solutions
+      - key: TO_EMAIL
+        value: info@a2mdigitalsolutions.com
+      # CORS - UPDATE WITH YOUR FRONTEND DOMAIN
+      - key: CORS_ORIGINS
+        value: '["https://your-frontend-domain.com"]'
+    # Auto-deploy on push to main
+    autoDeploy: true
+
+# Optional: Add a cron job to cleanup old inquiries (if needed)
+# cronJobs:
+#   - name: cleanup-old-inquiries
+#     schedule: "0 3 * * 0"  # Weekly on Sunday at 3 AM
+#     command: python cleanup.py
+#     envVars:
+#       - key: DATABASE_URL
+#         value: sqlite:///./data/inquiries.db
