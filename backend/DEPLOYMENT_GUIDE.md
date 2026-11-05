@@ -14,7 +14,7 @@ Deploy your FastAPI backend for **FREE** using one of these platforms.
    ```bash
    git init
    git add .
-   git commit -m "Initial commit"
+   git commit -m "A2M Digital Solutions - Frontend + FastAPI Backend"
    git branch -M main
    git remote add origin https://github.com/YOUR_USERNAME/a2m-digital-solutions.git
    git push -u origin main
@@ -35,7 +35,7 @@ Deploy your FastAPI backend for **FREE** using one of these platforms.
 
 4. **Get Your API URL**
    - After deploy: `https://a2m-digital-solutions-api.onrender.com`
-   - Test: `https://your-api-url.onrender.com/health`
+   - Test: `https://your-api.onrender.com/health`
 
 ---
 
@@ -120,13 +120,10 @@ Deploy your FastAPI backend for **FREE** using one of these platforms.
    - Copy the **16-character password** (no spaces)
 3. **Set in Environment:**
    ```
-   EMAIL_PROVIDER=gmail
    SMTP_HOST=smtp.gmail.com
    SMTP_PORT=587
    SMTP_USERNAME=your@gmail.com
    SMTP_PASSWORD=your16charapppassword
-   FROM_EMAIL=info@a2mdigitalsolutions.com
-   TO_EMAIL=info@a2mdigitalsolutions.com
    ```
 
 ### Brevo (Free 300 emails/day - Better Deliverability)
@@ -182,33 +179,9 @@ uvicorn main:app --reload --port 8000
 
 ---
 
-## 🌐 Connect Frontend to Backend
-
-### Update `script.js` (line 16):
-
-```javascript
-// Development
-const API_BASE_URL = 'http://localhost:8000';
-
-// Production - REPLACE WITH YOUR DEPLOYED URL
-const API_BASE_URL = 'https://a2m-digital-solutions-api.onrender.com';
-```
-
-### Update CORS in Backend (`config.py` or env):
-
-```python
-# Add your frontend domain
-CORS_ORIGINS = [
-    "https://your-frontend-domain.com",
-    "https://www.your-frontend-domain.com"
-]
-```
-
----
-
 ## ✅ Verify Deployment
 
-1. **Health Check:** `GET https://your-api.com/health`
+1. **Health Check:** `GET https://your-api.onrender.com/health`
    ```json
    {
      "status": "healthy",
@@ -218,7 +191,7 @@ CORS_ORIGINS = [
    }
    ```
 
-2. **Submit Test Inquiry:** `POST https://your-api.com/api/inquiries`
+2. **Submit Test Inquiry:** `POST https://your-api.onrender.com/api/inquiries`
    ```json
    {
      "name": "Test User",
@@ -230,7 +203,7 @@ CORS_ORIGINS = [
 
 3. **Check Email** - Should arrive at your `TO_EMAIL`
 
-4. **View Inquiries:** `GET https://your-api.com/api/inquiries`
+4. **View Inquiries** (admin): `GET https://your-api.onrender.com/api/inquiries` (requires Basic Auth)
 
 ---
 
@@ -249,24 +222,19 @@ CORS_ORIGINS = [
 
 ## 💰 Cost Summary
 
-| Platform | Monthly Cost | Limits |
-|----------|-------------|--------|
-| **Render** | $0 | 750 hrs, spins down |
-| **Railway** | $0* | $5 credit/month |
-| **Fly.io** | $0 | 3 VMs, 160GB transfer |
-| **Cloud Run** | $0 | 2M requests |
-| **Email (Gmail)** | $0 | 500/day |
-| **Email (Brevo)** | $0 | 300/day |
-| **Database (SQLite)** | $0 | Local file |
-
-*Railway free tier requires credit card verification
+| Component | Monthly Cost |
+|-----------|-------------|
+| Backend Hosting (Render) | **$0** (750 hrs/mo) |
+| Database (SQLite) | **$0** |
+| Email (Gmail SMTP) | **$0** (500/day) |
+| **Total** | **$0/month** |
 
 ---
 
 ## 🆘 Troubleshooting
 
 ### "CORS Error"
-- Add your frontend URL to `CORS_ORIGINS` in backend env
+- Add your frontend URL to `CORS_ORIGINS` in Render env vars
 - Redeploy backend
 
 ### "Email Not Sending"

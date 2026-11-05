@@ -42,12 +42,3 @@ services:
         value: '["https://your-frontend-domain.com"]'
     # Auto-deploy on push to main
     autoDeploy: true
-
-# Optional: Add a cron job to cleanup old inquiries (if needed)
-# cronJobs:
-#   - name: cleanup-old-inquiries
-#     schedule: "0 3 * * 0"  # Weekly on Sunday at 3 AM
-#     command: python cleanup.py
-#     envVars:
-#       - key: DATABASE_URL
-#         value: sqlite:///./data/inquiries.db

@@ -10,7 +10,6 @@ import aiosmtplib
 from config import get_settings
 from models import (
     get_service_label,
-    get_budget_label,
     get_timeline_label
 )
 
@@ -158,7 +157,6 @@ New Project Inquiry - A2M Digital Solutions
 From: {data.get('name', 'N/A')} ({data.get('email', 'N/A')})
 Phone: {data.get('phone', 'Not provided')}
 Service: {get_service_label(data.get('service', ''))}
-Budget: {get_budget_label(data.get('budget'))}
 Timeline: {get_timeline_label(data.get('timeline'))}
 
 Project Details:
@@ -212,10 +210,6 @@ Reply directly to this email to respond to the client.
                             {get_service_label(data.get('service', ''))}
                         </span>
                     </td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Budget:</td>
-                    <td style="padding: 8px 0; color: #0f172a;">{get_budget_label(data.get('budget'))}</td>
                 </tr>
                 <tr>
                     <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Timeline:</td>

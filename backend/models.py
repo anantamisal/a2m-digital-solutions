@@ -13,7 +13,6 @@ class InquiryCreate(BaseModel):
     email: EmailStr = Field(..., description="Email address")
     phone: Optional[str] = Field(None, max_length=50, description="Phone number")
     service: str = Field(..., description="Service interested in")
-    budget: Optional[str] = Field(None, description="Budget range")
     timeline: Optional[str] = Field(None, description="Expected timeline")
     message: str = Field(..., min_length=10, max_length=5000, description="Project details")
 
@@ -32,23 +31,6 @@ class InquiryCreate(BaseModel):
         ]
         if v not in allowed_services:
             raise ValueError(f"Service must be one of: {', '.join(allowed_services)}")
-        return v
-
-    @field_validator("budget")
-    @classmethod
-    def validate_budget(cls, v):
-        if v is None:
-            return v
-        allowed_budgets = [
-            "under-5k",
-            "5k-15k",
-            "15k-30k",
-            "30k-50k",
-            "50k-plus",
-            "not-sure"
-        ]
-        if v not in allowed_budgets:
-            raise ValueError(f"Budget must be one of: {', '.join(allowed_budgets)}")
         return v
 
     @field_validator("timeline")
@@ -88,7 +70,6 @@ class InquiryResponse(BaseModel):
     email: str
     phone: Optional[str]
     service: str
-    budget: Optional[str]
     timeline: Optional[str]
     message: str
     status: str
@@ -135,6 +116,22 @@ class ErrorResponse(BaseModel):
     error_code: Optional[str] = None
 
 
+class AdminLogin(BaseModel):
+    username: str
+    password: str
+
+
+class AdminToken(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
+class VisitorStats(BaseModel):
+    total_visits: int
+    today_visits: int
+    unique_visitors: int
+
+
 # Service labels for email formatting
 SERVICE_LABELS = {
     "web-development": "Web Development",
@@ -145,15 +142,6 @@ SERVICE_LABELS = {
     "consultation": "Consultation & Strategy",
     "ai-agent": "AI Agent Development",
     "other": "Other"
-}
-
-BUDGET_LABELS = {
-    "under-5k": "Under $5,000",
-    "5k-15k": "$5,000 - $15,000",
-    "15k-30k": "$15,000 - $30,000",
-    "30k-50k": "$30,000 - $50,000",
-    "50k-plus": "$50,000+",
-    "not-sure": "Not sure yet"
 }
 
 TIMELINE_LABELS = {
@@ -167,12 +155,6 @@ TIMELINE_LABELS = {
 
 def get_service_label(service: str) -> str:
     return SERVICE_LABELS.get(service, service)
-
-
-def get_budget_label(budget: Optional[str]) -> str:
-    if not budget:
-        return "Not specified"
-    return BUDGET_LABELS.get(budget, budget)
 
 
 def get_timeline_label(timeline: Optional[str]) -> str:

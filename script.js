@@ -7,9 +7,19 @@
     'use strict';
 
     // ========================================
-    // Configuration
+    // Backend API Configuration
     // ========================================
-    const API_BASE_URL = 'http://localhost:8000';  // Change for production!
+    // UPDATE THIS TO YOUR DEPLOYED BACKEND URL
+    // Examples:
+    // - Local: 'http://localhost:8000'
+    // - Render: 'https://a2m-digital-solutions-api.onrender.com'
+    // - Railway: 'https://a2m-digital-solutions-api.up.railway.app'
+    // - Fly.io: 'https://a2m-digital-solutions-api.fly.dev'
+    const API_BASE_URL = '';  // Change for production!
+
+    // ========================================
+    // WhatsApp Configuration
+    // ========================================
     const WHATSAPP_NUMBER = '918208214218';  // Your WhatsApp number with country code (no +)
 
     // ========================================
@@ -88,8 +98,8 @@
                     behavior: 'smooth'
                 });
 
-                // If scrolling to inquiry form, pre-select service from data attribute
-                if (targetId === '#inquiry' || targetId === '#contact') {
+                // If scrolling to contact form, pre-select service from data attribute
+                if (targetId === '#contact' || targetId === '#inquiry') {
                     const service = this.dataset.service;
                     if (service) {
                         setTimeout(() => {
@@ -254,9 +264,8 @@
 
             console.log('Inquiry submitted:', result);
 
-            // Show success modal (pass formData for WhatsApp)
-            const submittedData = Object.fromEntries(new FormData(inquiryForm).entries());
-            showSuccessModal(submittedData);
+            // Show success modal
+            showSuccessModal();
 
             // Reset form
             inquiryForm.reset();
@@ -279,7 +288,36 @@
 
     inquiryForm.addEventListener('submit', handleFormSubmit);
 
-    // WhatsApp button handler
+    // Success modal
+    function showSuccessModal() {
+        successModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function hideSuccessModal() {
+        successModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    closeModalBtn.addEventListener('click', hideSuccessModal);
+
+    // Close modal on backdrop click
+    successModal.addEventListener('click', (e) => {
+        if (e.target === successModal) {
+            hideSuccessModal();
+        }
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && successModal.classList.contains('active')) {
+            hideSuccessModal();
+        }
+    });
+
+    // ========================================
+    // WhatsApp Integration
+    // ========================================
     const whatsappBtn = document.getElementById('submit-whatsapp');
     if (whatsappBtn) {
         whatsappBtn.addEventListener('click', function(e) {
@@ -298,28 +336,79 @@
             sendWhatsAppInquiry(formData);
 
             // Show success modal
-            showSuccessModal(formData, 'whatsapp');
+            showSuccessModal(formData);
 
             // Reset form
             inquiryForm.reset();
         });
     }
 
+    // Helper functions to convert form values to readable labels
+    function getServiceLabel(value) {
+        const services = {
+            'web-development': 'Web Development',
+            'mobile-app': 'Mobile App Development',
+            'backend': 'Backend Development',
+            'ui-ux': 'UI/UX Design',
+            'devops': 'DevOps & Maintenance',
+            'consultation': 'Consultation & Strategy',
+            'ai-agent': 'AI Agent Development',
+            'other': 'Other'
+        };
+        return services[value] || value;
+    }
+
+    function getBudgetLabel(value) {
+        const budgets = {
+            'under-5k': 'Under $5,000',
+            '5k-15k': '$5,000 - $15,000',
+            '15k-30k': '$15,000 - $30,000',
+            '30k-50k': '$30,000 - $50,000',
+            '50k-plus': '$50,000+',
+            'not-sure': 'Not sure yet'
+        };
+        return budgets[value] || value || 'Not specified';
+    }
+
+    function getTimelineLabel(value) {
+        const timelines = {
+            'asap': 'ASAP',
+            '1-2-months': '1-2 Months',
+            '3-6-months': '3-6 Months',
+            '6-months-plus': '6+ Months',
+            'flexible': 'Flexible'
+        };
+        return timelines[value] || value || 'Not specified';
+    }
+
+    // WhatsApp Integration
+    function sendWhatsAppInquiry(formData) {
+        const message = `*New Project Inquiry - A2M Digital Solutions*
+
+*Name:* ${formData.name}
+*Email:* ${formData.email}
+*Phone:* ${formData.phone || 'Not provided'}
+*Service:* ${getServiceLabel(formData.service)}
+*Timeline:* ${getTimelineLabel(formData.timeline)}
+
+*Project Details:*
+${formData.message}`;
+
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+        // Open in new tab
+        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    }
+
     // Success modal
-    function showSuccessModal(formData, method = 'email') {
+    function showSuccessModal(formData) {
         successModal.classList.add('active');
         document.body.style.overflow = 'hidden';
 
-        // Update modal message based on method
-        const modalTitle = successModal.querySelector('h3');
-        const modalText = successModal.querySelector('p');
-
-        if (method === 'whatsapp') {
-            modalTitle.textContent = 'WhatsApp Opened!';
-            modalText.textContent = 'Your inquiry has been prepared in WhatsApp. Just tap Send to deliver it to us.';
-        } else {
-            modalTitle.textContent = 'Inquiry Submitted Successfully!';
-            modalText.textContent = 'Thank you for reaching out to A2M Digital Solutions. We\'ll review your project details and get back to you within 24 hours.';
+        // Also send via WhatsApp (non-blocking)
+        if (formData) {
+            setTimeout(() => sendWhatsAppInquiry(formData), 500);
         }
     }
 
@@ -458,67 +547,6 @@
 
         console.log('A2M Digital Solutions - Website initialized');
         console.log('API Base URL:', API_BASE_URL);
-    }
-
-    // ========================================
-    // Helper Functions
-    // ========================================
-    function getServiceLabel(value) {
-        const services = {
-            'web-development': 'Web Development',
-            'mobile-app': 'Mobile App Development',
-            'backend': 'Backend Development',
-            'ui-ux': 'UI/UX Design',
-            'devops': 'DevOps & Maintenance',
-            'consultation': 'Consultation & Strategy',
-            'ai-agent': 'AI Agent Development',
-            'other': 'Other'
-        };
-        return services[value] || value;
-    }
-
-    function getBudgetLabel(value) {
-        const budgets = {
-            'under-5k': 'Under $5,000',
-            '5k-15k': '$5,000 - $15,000',
-            '15k-30k': '$15,000 - $30,000',
-            '30k-50k': '$30,000 - $50,000',
-            '50k-plus': '$50,000+',
-            'not-sure': 'Not sure yet'
-        };
-        return budgets[value] || value || 'Not specified';
-    }
-
-    function getTimelineLabel(value) {
-        const timelines = {
-            'asap': 'ASAP',
-            '1-2-months': '1-2 Months',
-            '3-6-months': '3-6 Months',
-            '6-months-plus': '6+ Months',
-            'flexible': 'Flexible'
-        };
-        return timelines[value] || value || 'Not specified';
-    }
-
-    // WhatsApp Integration
-    function sendWhatsAppInquiry(formData) {
-        const message = `*New Project Inquiry - A2M Digital Solutions*
-
-*Name:* ${formData.name}
-*Email:* ${formData.email}
-*Phone:* ${formData.phone || 'Not provided'}
-*Service:* ${getServiceLabel(formData.service)}
-*Budget:* ${getBudgetLabel(formData.budget)}
-*Timeline:* ${getTimelineLabel(formData.timeline)}
-
-*Project Details:*
-${formData.message}`;
-
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
-
-        // Open in new tab
-        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     }
 
     // Run init when DOM is ready

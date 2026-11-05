@@ -1,9 +1,9 @@
 """
 Database configuration and models for A2M Digital Solutions
 """
-from datetime import datetime
-from typing import Optional
-from sqlalchemy import Column, Integer, String, Text, DateTime, create_engine
+from datetime import datetime, date
+from typing import Optional, List
+from sqlalchemy import Column, Integer, String, Text, DateTime, create_engine, func, Date
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
 from config import get_settings
@@ -29,17 +29,46 @@ class Inquiry(Base):
     email = Column(String(255), nullable=False, index=True)
     phone = Column(String(50), nullable=True)
     service = Column(String(100), nullable=False)
-    budget = Column(String(50), nullable=True)
     timeline = Column(String(50), nullable=True)
     message = Column(Text, nullable=False)
-    ip_address = Column(String(45), nullable=True)  # IPv4 or IPv6
+    ip_address = Column(String(45), nullable=True)
     user_agent = Column(Text, nullable=True)
-    status = Column(String(20), default="new", nullable=False)  # new, contacted, closed
+    status = Column(String(20), default="new", nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     def __repr__(self):
         return f"<Inquiry(id={self.id}, name='{self.name}', email='{self.email}', service='{self.service}')>"
+
+
+class VisitorCount(Base):
+    """Visitor count tracking"""
+    __tablename__ = "visitor_counts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    date = Column(Date, unique=True, nullable=False, index=True)
+    count = Column(Integer, default=0, nullable=False)
+    unique_visitors = Column(Integer, default=0, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    def __repr__(self):
+        return f"<VisitorCount(date='{self.date}', count={self.count})>"
+
+
+class AdminUser(Base):
+    """Admin user for dashboard access"""
+    __tablename__ = "admin_users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(100), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    is_active = Column(Integer, default=1, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    last_login = Column(DateTime, nullable=True)
+
+    def __repr__(self):
+        return f"<AdminUser(username='{self.username}')>"
 
 
 def init_db():
@@ -56,7 +85,7 @@ def get_db() -> Session:
         db.close()
 
 
-# CRUD Operations
+# CRUD Operations for Inquiries
 def create_inquiry(db: Session, inquiry_data: dict) -> Inquiry:
     """Create a new inquiry"""
     inquiry = Inquiry(**inquiry_data)
@@ -102,3 +131,62 @@ def get_inquiry_stats(db: Session) -> dict:
         "contacted": contacted,
         "closed": closed
     }
+
+
+# Visitor Count Operations
+def increment_visitor_count(db: Session, is_unique: bool = False) -> VisitorCount:
+    """Increment today's visitor count"""
+    today = date.today()
+    visitor_count = db.query(VisitorCount).filter(VisitorCount.date == today).first()
+
+    if not visitor_count:
+        visitor_count = VisitorCount(date=today, count=0, unique_visitors=0)
+        db.add(visitor_count)
+
+    visitor_count.count += 1
+    if is_unique:
+        visitor_count.unique_visitors += 1
+    visitor_count.updated_at = datetime.utcnow()
+
+    db.commit()
+    db.refresh(visitor_count)
+    return visitor_count
+
+
+def get_visitor_stats(db: Session) -> dict:
+    """Get visitor statistics"""
+    total_visits = db.query(func.sum(VisitorCount.count)).scalar() or 0
+    today = date.today()
+    today_count = db.query(VisitorCount).filter(VisitorCount.date == today).first()
+    today_visits = today_count.count if today_count else 0
+    unique_visitors = db.query(func.sum(VisitorCount.unique_visitors)).scalar() or 0
+    return {
+        "total_visits": total_visits,
+        "today_visits": today_visits,
+        "unique_visitors": unique_visitors
+    }
+
+
+# Admin User Operations
+def get_admin_user(db: Session, username: str):
+    """Get admin user by username"""
+    return db.query(AdminUser).filter(AdminUser.username == username).first()
+
+
+def create_admin_user(db: Session, username: str, password_hash: str) -> AdminUser:
+    """Create admin user"""
+    admin = AdminUser(username=username, password_hash=password_hash)
+    db.add(admin)
+    db.commit()
+    db.refresh(admin)
+    return admin
+
+
+def update_last_login(db: Session, admin_id: int):
+    """Update admin last login"""
+    admin = db.query(AdminUser).filter(AdminUser.id == admin_id).first()
+    if admin:
+        admin.last_login = datetime.utcnow()
+        db.commit()
+        db.refresh(admin)
+    return admin
