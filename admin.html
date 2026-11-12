@@ -1659,9 +1659,9 @@
                     return;
                 }
                 // Browser ended on its own (pause, silence, permission denied).
-                // In continuous mode we WANT to keep listening — restart it.
-                // Do NOT auto-submit — leave the transcript in the box so the
-                // user can review/edit and click Send when ready.
+                // In continuous mode we WANT to keep listening — restart it silently.
+                // Do NOT change UI state (no setCoachState) — that causes the mic
+                // icon to flicker. Do NOT auto-submit — user clicks mic to send.
                 if (!state.coach.busy) {
                     state.coach.stopping = false;
                     // Restart recognition to continue listening in continuous mode
@@ -1712,7 +1712,7 @@
                         recognition.onend = arguments.callee;
                         state.coach.recognition = recognition;
                         recognition.start();
-                        setCoachState('recording');
+                        // NO setCoachState('recording') here — keep UI stable during auto-restart
                         return;
                     } catch (error) {
                         // If restart fails, fall back to idle
