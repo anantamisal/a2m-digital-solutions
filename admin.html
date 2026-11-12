@@ -1654,18 +1654,14 @@
             recognition.onend = function () {
                 state.coach.recognition = null;
                 if (state.coach.stopping) {
+                    // User explicitly clicked stop — send it.
                     submitBrowserTranscript();
                     return;
                 }
-                // The browser ended the session on its own (long silence, or the
-                // user denied permission). Send whatever was picked up.
-                if (state.coach.transcript.trim()) {
-                    submitBrowserTranscript();
-                } else if (!state.coach.busy) {
-                    // Nothing captured and no request in flight -> back to idle.
-                    // If the transcript was already submitted, submitBrowserTranscript
-                    // has cleared it and the in-flight request owns the button
-                    // state ('thinking' / 'speaking'), so leave it alone.
+                // Browser ended on its own (pause, silence, permission denied).
+                // Do NOT auto-submit — leave the transcript in the box so the
+                // user can review/edit and click Send when ready.
+                if (!state.coach.busy) {
                     state.coach.stopping = false;
                     setCoachState('idle');
                 }
@@ -1723,6 +1719,15 @@
 
         function setCoachMode(mode) {
             state.coach.mode = COACH_MODE_HINTS[mode] ? mode : 'practice';
+            // Clear conversation history when switching modes so the new
+            // mode's behavior isn't influenced by previous mode's responses.
+            state.coach.history = [];
+            $('#coach-transcript').replaceChildren();
+            $('#transcript-empty').classList.remove('hidden');
+            $('#coach-answer').classList.add('hidden');
+            $('#coach-text').value = '';
+            setText('#turn-count', '0 turns');
+
             var buttons = document.querySelectorAll('#coach-modes .coach-mode-btn');
             Array.prototype.forEach.call(buttons, function (button) {
                 var active = button.getAttribute('data-mode') === state.coach.mode;
