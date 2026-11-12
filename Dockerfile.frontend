@@ -1,0 +1,34 @@
+# =====================================================================
+# A2M Digital Solutions - frontend image (nginx serving the static site)
+#
+# Build context is the REPOSITORY ROOT:
+#   docker build -f Dockerfile.frontend -t a2m-frontend .
+# =====================================================================
+FROM nginx:1.27-alpine
+
+# openssl lets the entrypoint mint a temporary self-signed certificate so
+# nginx can start before the real Let's Encrypt certificate exists.
+RUN apk add --no-cache openssl
+
+# --- Static site + admin dashboard ------------------------------------
+COPY index.html admin.html /usr/share/nginx/html/
+COPY company_logo1.png company_logo_mark.png company_logo.png /usr/share/nginx/html/
+COPY styles.css script.js /usr/share/nginx/html/
+# tailwind.css is the pre-built Tailwind stylesheet that index.html and
+# admin.html link to. It MUST be copied, otherwise the production site
+# ships with no styling at all. Rebuild it with `npm run build:css`
+# after changing any class name in the HTML.
+COPY tailwind.css /usr/share/nginx/html/
+
+# --- nginx configuration ----------------------------------------------
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# --- entrypoint --------------------------------------------------------
+# Runs before nginx starts: creates a placeholder TLS cert when needed.
+COPY docker-entrypoint.sh /docker-entrypoint.d/40-a2m-tls.sh
+RUN chmod +x /docker-entrypoint.d/40-a2m-tls.sh
+
+EXPOSE 80 443
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://127.0.0.1/ || exit 1

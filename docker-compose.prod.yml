@@ -1,0 +1,106 @@
+# =====================================================================
+# A2M Digital Solutions - production compose (Oracle Cloud)
+#
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# Container names, image names and the network name are fixed here
+# because deploy.sh, deploy-quick.sh, deploy-one-liner.sh, the Makefile
+# and the GitHub Actions workflow all reference them by name:
+#   a2m-frontend / a2m-backend / a2m-certbot / a2m-network
+# =====================================================================
+services:
+  backend:
+    image: a2m-backend:latest
+    container_name: a2m-backend
+    restart: unless-stopped
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    # The API is only reachable from inside the a2m-network bridge -
+    # nginx is the single public entry point. Do NOT publish this port.
+    expose:
+      - "8000"
+    volumes:
+      - ./backend/data:/app/data
+      - ./backend/.env:/app/.env:ro
+    # -----------------------------------------------------------------
+    # backend/.env is the single source of truth for the secrets.
+    #
+    # It MUST be loaded with env_file, NOT substituted with ${VAR}.
+    # Compose resolves ${VAR} from the shell that ran `compose up` (or
+    # from a .env file NEXT TO the compose file). The GitHub Actions
+    # workflow exports A2M_ADMIN_PASSWORD / A2M_NVIDIA_API_KEY - names
+    # with an A2M_ prefix - and writes them into backend/.env, so ${VAR}
+    # resolved to the EMPTY default. An empty environment variable
+    # OVERRIDES the value in the mounted .env file (pydantic-settings
+    # reads OS env vars first), which silently produced:
+    #   * NVIDIA_API_KEY="" -> the agent fell back to Pollinations
+    #   * ADMIN_PASSWORD="admin123" -> the real secret was ignored
+    #
+    # env_file loads the file's values INTO the container environment,
+    # so the real secrets are used. deploy.sh and the CI workflow both
+    # create backend/.env before starting the stack, so the file always
+    # exists by the time compose runs.
+    # -----------------------------------------------------------------
+    env_file:
+      - ./backend/.env
+    environment:
+      # `environment` wins over `env_file`, so these three deliberately
+      # override whatever backend/.env says.
+      - ENVIRONMENT=production
+      - DEBUG=false
+      # Overrides the value in backend/.env so the DB lands in the
+      # bind-mounted volume instead of the container filesystem.
+      - DATABASE_URL=sqlite:///./data/inquiries.db
+    networks:
+      - a2m-network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      start_period: 15s
+      retries: 3
+
+  frontend:
+    image: a2m-frontend:latest
+    container_name: a2m-frontend
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Read-write: the frontend entrypoint writes a temporary
+      # self-signed certificate here until certbot issues the real one.
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - a2m-network
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: a2m-certbot
+    restart: unless-stopped
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    # Renews twice a day. `certbot renew` is a no-op until a
+    # certificate has been issued.
+    entrypoint: >
+      /bin/sh -c 'trap exit TERM;
+        while :; do
+          certbot renew --webroot -w /var/www/certbot --quiet;
+          sleep 12h & wait $${!};
+        done;'
+    networks:
+      - a2m-network
+
+networks:
+  a2m-network:
+    name: a2m-network
+    driver: bridge

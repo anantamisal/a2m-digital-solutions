@@ -1,524 +1,2062 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - A2M Digital Solutions</title>
-    <link rel="stylesheet" href="styles.css">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin Console | A2M Digital Solutions</title>
+
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome for sleek SVG icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS (compiled - see tailwind.config.js; rebuild with: npm run build:css) -->
+    <!-- Custom CSS Animations & Custom Glassmorphism Styles -->
     <style>
-        .admin-layout {
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            min-height: 100vh;
+        /* Base Dark Canvas Styling */
+        body {
+            background-color: #050811;
+            color: #f1f5f9;
+            overflow-x: hidden;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
-        .admin-sidebar {
-            background: var(--color-secondary);
-            color: var(--color-white);
-            padding: var(--spacing-6) var(--spacing-4);
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(13, 19, 35, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
-        .admin-logo {
-            font-size: var(--font-size-xl);
-            font-weight: 700;
-            margin-bottom: var(--spacing-8);
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-3);
+
+        .glass-panel-interactive {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .admin-nav {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-2);
+
+        .glass-panel-interactive:hover {
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.25);
         }
-        .admin-nav a {
-            color: var(--color-gray-300);
-            padding: var(--spacing-3) var(--spacing-4);
-            border-radius: var(--radius-md);
-            transition: all var(--transition-fast);
-            text-decoration: none;
+
+        /* Gradient Text Utility */
+        .text-gradient {
+            background: linear-gradient(135deg, #a855f7 0%, #6366f1 45%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .admin-nav a:hover,
-        .admin-nav a.active {
-            background: var(--color-primary);
-            color: var(--color-white);
+
+        .text-gradient-cyan {
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .admin-main {
-            padding: var(--spacing-8);
-            background: var(--color-gray-50);
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: var(--spacing-8);
+        ::-webkit-scrollbar-track {
+            background: #050811;
         }
-        .admin-title {
-            font-size: var(--font-size-3xl);
-            font-weight: 700;
-            color: var(--color-secondary);
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
         }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: var(--spacing-6);
-            margin-bottom: var(--spacing-8);
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6366f1;
         }
-        .stat-card {
-            background: var(--color-white);
-            padding: var(--spacing-6);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--color-gray-200);
+
+        /* Glowing Accent Orbs */
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
         }
-        .stat-label {
-            font-size: var(--font-size-sm);
-            color: var(--color-gray-500);
-            margin-bottom: var(--spacing-2);
-        }
-        .stat-value {
-            font-size: var(--font-size-3xl);
-            font-weight: 700;
-            color: var(--color-secondary);
-        }
-        .stat-card.primary .stat-value { color: var(--color-primary); }
-        .stat-card.success .stat-value { color: var(--color-success); }
-        .stat-card.warning .stat-value { color: var(--color-warning); }
-        .table-container {
-            background: var(--color-white);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--color-gray-200);
+
+        /* Shimmer Button Effect */
+        .btn-shimmer {
+            position: relative;
             overflow: hidden;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .btn-shimmer::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                60deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.25) 50%,
+                transparent 70%
+            );
+            transform: rotate(30deg) translateX(-100%);
+            transition: transform 0.8s ease;
         }
-        th, td {
-            padding: var(--spacing-4);
-            text-align: left;
-            border-bottom: 1px solid var(--color-gray-200);
+        .btn-shimmer:hover::after {
+            transform: rotate(30deg) translateX(100%);
         }
-        th {
-            background: var(--color-gray-50);
-            font-weight: 600;
-            color: var(--color-gray-700);
-            font-size: var(--font-size-sm);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        tr:hover td {
-            background: var(--color-gray-50);
-        }
-        .badge {
-            display: inline-block;
-            padding: var(--spacing-1) var(--spacing-3);
-            border-radius: var(--radius-full);
-            font-size: var(--font-size-xs);
-            font-weight: 600;
-            text-transform: capitalize;
-        }
-        .badge-new { background: var(--color-primary); color: var(--color-white); }
-        .badge-contacted { background: var(--color-warning); color: var(--color-white); }
-        .badge-closed { background: var(--color-success); color: var(--color-white); }
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: var(--spacing-2);
-            margin-top: var(--spacing-6);
-        }
-        .page-btn {
-            padding: var(--spacing-2) var(--spacing-4);
-            border: 1px solid var(--color-gray-300);
-            border-radius: var(--radius-md);
-            background: var(--color-white);
-            cursor: pointer;
-        }
-        .page-btn.active {
-            background: var(--color-primary);
-            color: var(--color-white);
-            border-color: var(--color-primary);
-        }
-        .login-container {
-            max-width: 400px;
-            margin: 0 auto;
-            padding: var(--spacing-8);
-            background: var(--color-white);
-            border-radius: var(--radius-xl);
-            box-shadow: var(--shadow-xl);
-            border: 1px solid var(--color-gray-200);
-        }
-        .login-title {
-            font-size: var(--font-size-2xl);
-            font-weight: 700;
-            color: var(--color-secondary);
-            margin-bottom: var(--spacing-2);
-            text-align: center;
-        }
-        .login-subtitle {
-            color: var(--color-gray-500);
-            text-align: center;
-            margin-bottom: var(--spacing-8);
-        }
-        .form-group {
-            margin-bottom: var(--spacing-5);
-        }
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: var(--spacing-2);
-            color: var(--color-secondary);
-        }
-        input[type="text"], input[type="password"] {
-            width: 100%;
-            padding: var(--spacing-3) var(--spacing-4);
-            border: 1px solid var(--color-gray-300);
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-base);
-        }
-        input:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        .btn-login {
-            width: 100%;
-            margin-top: var(--spacing-4);
-        }
-    </style>
-</head>
-<body>
-    <div id="login-page" class="login-page">
-        <div class="login-container">
-            <h1 class="login-title">Admin Login</h1>
-            <p class="login-subtitle">A2M Digital Solutions Admin Dashboard</p>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required autocomplete="username">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required autocomplete="current-password">
-                </div>
-                <button type="submit" class="btn btn-primary btn-login">Sign In</button>
-            </form>
-            <p id="login-error" style="color: var(--color-error); text-align: center; margin-top: var(--spacing-4); display: none;"></p>
-        </div>
 
-    <div id="admin-dashboard" class="admin-layout" style="display: none;">
-        <aside class="admin-sidebar">
-            <div class="admin-logo">
-                <img src="company_logo1.png" alt="A2M Logo" style="width: 32px; height: 32px; border-radius: var(--radius-md);">
-                <span>A2M Admin</span>
+        /* Active Nav Pill */
+        .nav-link.active {
+            color: #818cf8;
+            font-weight: 600;
+        }
+        .nav-link.active::after {
+            content: '';
+            display: block;
+            height: 2px;
+            width: 100%;
+            background: #6366f1;
+            box-shadow: 0 0 10px #6366f1;
+            margin-top: 2px;
+            border-radius: 2px;
+        }
+
+        /* ---------- Admin console layout ---------- */
+        .admin-sidebar {
+            width: 260px;
+        }
+        .admin-main-wrap {
+            margin-left: 260px;
+        }
+        @media (max-width: 1023px) {
+            .admin-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .admin-sidebar.open {
+                transform: translateX(0);
+            }
+            .admin-main-wrap {
+                margin-left: 0;
+            }
+        }
+
+        /* Sidebar navigation item */
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #94a3b8;
+            border: 1px solid transparent;
+            text-align: left;
+            transition: all 0.25s ease;
+        }
+        .admin-nav-link:hover {
+            color: #f8fafc;
+            background: rgba(99, 102, 241, 0.12);
+            border-color: rgba(99, 102, 241, 0.25);
+        }
+        .admin-nav-link.active {
+            color: #c7d2fe;
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.22), rgba(6, 182, 212, 0.08));
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 0 18px -6px rgba(99, 102, 241, 0.6);
+        }
+        .admin-nav-link.active .nav-glyph {
+            color: #a5b4fc;
+        }
+
+        /* Clamp long inquiry messages (replaced by .msg-open) */
+        .msg-clamp {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Recording pulse on the mic button */
+        @keyframes micPulse {
+            0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55); }
+            70%  { box-shadow: 0 0 0 18px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .mic-recording {
+            animation: micPulse 1.4s infinite;
+        }
+
+        /* Thinking dots on the status pill */
+        @keyframes dotBounce {
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+            40%           { transform: translateY(-3px); opacity: 1; }
+        }
+        .thinking-dot {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            margin-right: 3px;
+            border-radius: 9999px;
+            background: currentColor;
+            animation: dotBounce 1.2s infinite;
+        }
+        .thinking-dot:nth-child(2) { animation-delay: 0.15s; }
+        .thinking-dot:nth-child(3) { animation-delay: 0.3s; }
+    </style>
+
+    <link rel="stylesheet" href="/tailwind.css">
+</head>
+<body class="relative min-h-screen">
+    <!-- Glowing Background Atmosphere Orbs -->
+    <div class="glow-orb w-96 h-96 bg-indigo-600/20 top-0 left-1/4 animate-pulse-glow"></div>
+    <div class="glow-orb w-[500px] h-[500px] bg-purple-600/15 top-1/3 right-5 animate-pulse-glow" style="animation-delay: 2s;"></div>
+    <div class="glow-orb w-96 h-96 bg-cyan-600/15 bottom-1/4 left-10 animate-pulse-glow" style="animation-delay: 4s;"></div>
+
+    <!-- ========================================
+         LOGIN VIEW
+         ======================================== -->
+    <div id="login-view" class="relative z-10 min-h-screen flex items-center justify-center px-4 py-16">
+        <div class="w-full max-w-md">
+
+            <div class="text-center mb-8 space-y-4">
+                <div class="inline-flex h-14 w-auto px-3 rounded-2xl bg-white/5 border border-white/10 shadow-lg shadow-indigo-500/10 items-center justify-center">
+                    <img src="company_logo_mark.png" alt="A2M Digital Solutions" class="h-9 w-auto object-contain">
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight text-white">
+                        A2M <span class="text-gradient">Admin Console</span>
+                    </h1>
+                    <p class="text-xs text-slate-400 mt-2">Sign in to manage inquiries, visitors and the AI Coach.</p>
+                </div>
             </div>
-            <nav class="admin-nav">
-                <a href="#" class="active" data-page="dashboard">Dashboard</a>
-                <a href="#" data-page="inquiries">Inquiries</a>
-                <a href="#" data-page="visitors">Visitors</a>
-                <a href="#" id="logout-btn">Logout</a>
+
+            <div class="glass-panel rounded-3xl p-8 border border-slate-800 shadow-2xl">
+                <form id="login-form" class="space-y-5" novalidate>
+
+                    <div>
+                        <label for="login-username" class="block text-xs font-bold text-slate-300 uppercase mb-2">Username</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 text-xs"></i>
+                            <input type="text" id="login-username" name="username" autocomplete="username" required
+                                class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="login-password" class="block text-xs font-bold text-slate-300 uppercase mb-2">Password</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 text-xs"></i>
+                            <input type="password" id="login-password" name="password" autocomplete="current-password" required
+                                class="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors text-sm">
+                        </div>
+                    </div>
+
+                    <!-- Inline error, populated by JS (textContent only) -->
+                    <div id="login-error" class="hidden rounded-xl bg-rose-500/10 border border-rose-500/30 px-4 py-3">
+                        <p class="text-xs text-rose-300 leading-relaxed" id="login-error-text"></p>
+                    </div>
+
+                    <button type="submit" id="login-submit"
+                        class="btn-shimmer w-full py-3.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-500 shadow-lg shadow-indigo-600/25 hover:scale-[1.01] transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Sign In</span>
+                    </button>
+
+                </form>
+            </div>
+
+            <p class="text-center text-[11px] text-slate-600 mt-6">
+                <i class="fa-solid fa-shield-halvest mr-1"></i>Protected area. Sessions are stored in a secure, httpOnly cookie.
+            </p>
+
+        </div>
+    </div>
+    <!-- ========================================
+         APP SHELL
+         ======================================== -->
+    <div id="app-view" class="hidden relative z-10 min-h-screen">
+
+        <!-- ---------- Sidebar ---------- -->
+        <aside id="sidebar" class="admin-sidebar fixed top-0 left-0 h-screen glass-panel border-r border-slate-800/70 flex flex-col z-40">
+            <div class="h-16 flex items-center gap-3 px-5 border-b border-slate-800/70 shrink-0">
+                <div class="h-9 w-auto px-1.5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                    <img src="company_logo_mark.png" alt="A2M Digital Solutions" class="h-6 w-auto object-contain">
+                </div>
+                <div class="leading-tight min-w-0">
+                    <div class="text-sm font-bold text-white truncate">A2M Console</div>
+                    <div class="text-[10px] font-mono text-indigo-300">admin.v1.0</div>
+                </div>
+            </div>
+
+            <nav class="flex-1 overflow-y-auto px-3 py-5 space-y-1.5" aria-label="Admin sections">
+                <button type="button" class="admin-nav-link active" data-page="dashboard">
+                    <i class="fa-solid fa-chart-pie nav-glyph w-4 text-center"></i><span>Dashboard</span>
+                </button>
+                <button type="button" class="admin-nav-link" data-page="inquiries">
+                    <i class="fa-solid fa-inbox nav-glyph w-4 text-center"></i><span>Inquiries</span>
+                    <span id="nav-inquiry-count" class="ml-auto text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/30 text-indigo-300">0</span>
+                </button>
+                <button type="button" class="admin-nav-link" data-page="visitors">
+                    <i class="fa-solid fa-users nav-glyph w-4 text-center"></i><span>Visitors</span>
+                </button>
+                <button type="button" class="admin-nav-link" data-page="coach">
+                    <i class="fa-solid fa-robot nav-glyph w-4 text-center"></i><span>AI Coach</span>
+                </button>
             </nav>
+
+            <div class="px-3 py-4 border-t border-slate-800/70 space-y-2 shrink-0">
+                <div class="flex items-center gap-3 px-2 py-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-600 to-cyan-500 flex items-center justify-center text-[11px] font-bold text-white shrink-0" id="sidebar-admin-avatar">A</div>
+                    <div class="min-w-0 flex-1 leading-tight">
+                        <div class="text-xs font-semibold text-white truncate" id="sidebar-admin-name">admin</div>
+                        <div class="text-[10px] text-slate-500">Administrator</div>
+                    </div>
+                </div>
+                <button type="button" id="logout-btn"
+                    class="w-full px-3 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white hover:bg-rose-500/15 hover:border-rose-500/40 border border-slate-800 transition-colors flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Sign Out</span>
+                </button>
+            </div>
         </aside>
-        <main class="admin-main">
-            <header class="admin-header">
-                <h1 class="admin-title" id="page-title">Dashboard</h1>
-                <span id="admin-user" style="color: var(--color-gray-500); font-size: var(--font-size-sm);"></span>
+
+        <!-- Mobile sidebar backdrop -->
+        <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-30 lg:hidden"></div>
+
+        <!-- ---------- Main column ---------- -->
+        <div class="admin-main-wrap min-h-screen flex flex-col">
+
+            <!-- Sticky header -->
+            <header class="sticky top-0 z-20 glass-panel border-b border-slate-800/70 px-4 sm:px-6 py-3.5 flex items-center gap-4">
+                <button type="button" id="sidebar-toggle" aria-label="Toggle navigation"
+                    class="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors shrink-0">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+                <div class="min-w-0 flex-1">
+                    <h1 id="page-title" class="text-base sm:text-lg font-bold text-white truncate">Dashboard</h1>
+                    <p id="page-subtitle" class="text-[11px] text-slate-400 truncate">Overview of your pipeline and traffic.</p>
+                </div>
+
+                <!-- AI status pill, driven by GET /api/ai/status -->
+                <span id="ai-pill"
+                    class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold border bg-slate-900/60 border-slate-800 text-slate-400">
+                    <span id="ai-pill-dot" class="w-2 h-2 rounded-full bg-slate-600"></span>
+                    <span id="ai-pill-text">Checking AI…</span>
+                </span>
+
+                <!-- Admin chip -->
+                <span id="admin-chip"
+                    class="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold bg-indigo-500/10 border border-indigo-500/25 text-indigo-300">
+                    <i class="fa-solid fa-user-shield"></i><span id="admin-chip-name">admin</span>
+                </span>
+
+                <button type="button" id="header-refresh"
+                    class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors shrink-0" aria-label="Refresh">
+                    <i class="fa-solid fa-rotate"></i>
+                </button>
             </header>
 
-            <!-- Dashboard Page -->
-            <div id="page-dashboard">
-                <div class="stats-grid">
-                    <div class="stat-card primary">
-                        <div class="stat-label">Total Inquiries</div>
-                        <div class="stat-value" id="stat-total">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">New</div>
-                        <div class="stat-value" id="stat-new">0</div>
-                    </div>
-                    <div class="stat-card warning">
-                        <div class="stat-label">Contacted</div>
-                        <div class="stat-value" id="stat-contacted">0</div>
-                    </div>
-                    <div class="stat-card success">
-                        <div class="stat-label">Closed</div>
-                        <div class="stat-value" id="stat-closed">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Total Visits</div>
-                        <div class="stat-value" id="stat-total-visits">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Today's Visits</div>
-                        <div class="stat-value" id="stat-today-visits">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Unique Visitors</div>
-                        <div class="stat-value" id="stat-unique-visitors">0</div>
-                    </div>
-                    <div class="stat-card primary">
-                        <div class="stat-label">Today's Visits</div>
-                        <div class="stat-value" id="stat-today">0</div>
-                    </div>
-                </div>
-            </div>
+            <!-- ---------- Pages ---------- -->
+            <main class="flex-1 p-4 sm:p-6">
 
-            <!-- Inquiries Page -->
-            <div id="page-inquiries" style="display: none;">
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Service</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="inquiries-table"></tbody>
-                    </table>
-                </div>
-                <div class="pagination" id="pagination"></div>
-            </div>
+                <!-- ===== Dashboard ===== -->
+                <section class="admin-page space-y-6" data-page="dashboard">
+                    <!-- Inquiry pipeline -->
+                    <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                        <div class="glass-panel rounded-2xl p-5 border border-slate-800">
+                            <div class="flex items-start justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Inquiries</span>
+                                <span class="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center text-indigo-400 text-xs"><i class="fa-solid fa-inbox"></i></span>
+                            </div>
+                            <div class="text-3xl font-extrabold text-white font-mono" id="stat-total">0</div>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-5 border border-slate-800">
+                            <div class="flex items-start justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">New</span>
+                                <span class="w-8 h-8 rounded-lg bg-sky-500/15 border border-sky-500/25 flex items-center justify-center text-sky-400 text-xs"><i class="fa-solid fa-circle-dot"></i></span>
+                            </div>
+                            <div class="text-3xl font-extrabold text-white font-mono" id="stat-new">0</div>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-5 border border-slate-800">
+                            <div class="flex items-start justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Contacted</span>
+                                <span class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/25 flex items-center justify-center text-amber-400 text-xs"><i class="fa-solid fa-envelope-open-text"></i></span>
+                            </div>
+                            <div class="text-3xl font-extrabold text-white font-mono" id="stat-contacted">0</div>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-5 border border-slate-800">
+                            <div class="flex items-start justify-between mb-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Closed</span>
+                                <span class="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 text-xs"><i class="fa-solid fa-circle-check"></i></span>
+                            </div>
+                            <div class="text-3xl font-extrabold text-white font-mono" id="stat-closed">0</div>
+                        </div>
+                    </div>
 
-            <!-- Visitors Page -->
-            <div id="page-visitors" style="display: none;">
-                <div class="stats-grid" id="visitor-stats"></div>
-            </div>
-        </main>
+                    <!-- Traffic -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="glass-panel rounded-2xl p-5 border border-slate-800 flex items-center gap-4">
+                            <span class="w-11 h-11 rounded-xl bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 text-lg shrink-0"><i class="fa-solid fa-eye"></i></span>
+                            <div>
+                                <div class="text-xl font-extrabold text-white font-mono" id="stat-total-visits">0</div>
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Visits</div>
+                            </div>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-5 border border-slate-800 flex items-center gap-4">
+                            <span class="w-11 h-11 rounded-xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-400 text-lg shrink-0"><i class="fa-solid fa-calendar-day"></i></span>
+                            <div>
+                                <div class="text-xl font-extrabold text-white font-mono" id="stat-today-visits">0</div>
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today's Visits</div>
+                            </div>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-5 border border-slate-800 flex items-center gap-4">
+                            <span class="w-11 h-11 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 text-lg shrink-0"><i class="fa-solid fa-user-check"></i></span>
+                            <div>
+                                <div class="text-xl font-extrabold text-white font-mono" id="stat-unique-visitors">0</div>
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Unique Visitors</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent inquiries -->
+                    <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+                            <h2 class="text-sm font-bold text-white">Recent Inquiries</h2>
+                            <button type="button" class="admin-jump-inquiries text-[11px] font-semibold text-indigo-300 hover:text-indigo-200 transition-colors">
+                                View all <i class="fa-solid fa-arrow-right text-[9px] ml-1"></i>
+                            </button>
+                        </div>
+                        <div id="recent-inquiries" class="divide-y divide-slate-800/70"></div>
+                    </div>
+                </section>
+
+                <!-- ===== Inquiries ===== -->
+                <section class="admin-page hidden space-y-5" data-page="inquiries">
+                    <!-- Toolbar -->
+                    <div class="glass-panel rounded-2xl border border-slate-800 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                        <div class="relative flex-1 sm:max-w-xs">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600 text-xs"></i>
+                            <input type="search" id="inquiry-search" placeholder="Search name, email or message…"
+                                class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors text-xs">
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button type="button" class="inquiry-filter-btn text-[11px] font-semibold px-3.5 py-2 rounded-xl border transition-colors" data-status="all">All</button>
+                            <button type="button" class="inquiry-filter-btn text-[11px] font-semibold px-3.5 py-2 rounded-xl border transition-colors" data-status="new">New</button>
+                            <button type="button" class="inquiry-filter-btn text-[11px] font-semibold px-3.5 py-2 rounded-xl border transition-colors" data-status="contacted">Contacted</button>
+                            <button type="button" class="inquiry-filter-btn text-[11px] font-semibold px-3.5 py-2 rounded-xl border transition-colors" data-status="closed">Closed</button>
+                        </div>
+                        <div class="sm:ml-auto text-[11px] text-slate-500 font-mono" id="inquiry-count-label">—</div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse min-w-[900px]">
+                                <thead>
+                                    <tr class="border-b border-slate-800 bg-slate-950/40">
+                                        <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Client</th>
+                                        <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Service</th>
+                                        <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Timeline</th>
+                                        <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Message</th>
+                                        <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Status</th>
+                                        <th class="px-5 py-3.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Received</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inquiries-body" class="divide-y divide-slate-800/70"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Empty state -->
+                        <div id="inquiries-empty" class="hidden py-16 text-center">
+                            <i class="fa-regular fa-folder-open text-3xl text-slate-700 mb-3"></i>
+                            <p class="text-sm text-slate-400 font-semibold">No inquiries found</p>
+                            <p class="text-xs text-slate-600 mt-1">New submissions from the public site appear here.</p>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div id="pagination" class="flex items-center justify-between px-5 py-3.5 border-t border-slate-800">
+                            <span id="pagination-label" class="text-[11px] text-slate-500 font-mono">—</span>
+                            <div class="flex items-center gap-2">
+                                <button type="button" id="page-prev"
+                                    class="px-3 py-1.5 rounded-lg text-[11px] font-semibold border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                                    <i class="fa-solid fa-chevron-left text-[9px]"></i> Prev
+                                </button>
+                                <button type="button" id="page-next"
+                                    class="px-3 py-1.5 rounded-lg text-[11px] font-semibold border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                                    Next <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== Visitors ===== -->
+                <section class="admin-page hidden space-y-6" data-page="visitors">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="glass-panel rounded-2xl p-6 border border-slate-800">
+                            <div class="flex items-start justify-between mb-4">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Visits</span>
+                                <span class="w-9 h-9 rounded-lg bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 text-sm"><i class="fa-solid fa-eye"></i></span>
+                            </div>
+                            <div class="text-4xl font-extrabold text-white font-mono" id="visitor-total-visits">0</div>
+                            <p class="text-[11px] text-slate-500 mt-2">Every page view recorded since launch.</p>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-6 border border-slate-800">
+                            <div class="flex items-start justify-between mb-4">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Today's Visits</span>
+                                <span class="w-9 h-9 rounded-lg bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-400 text-sm"><i class="fa-solid fa-calendar-day"></i></span>
+                            </div>
+                            <div class="text-4xl font-extrabold text-white font-mono" id="visitor-today-visits">0</div>
+                            <p class="text-[11px] text-slate-500 mt-2">Page views recorded since midnight.</p>
+                        </div>
+                        <div class="glass-panel rounded-2xl p-6 border border-slate-800">
+                            <div class="flex items-start justify-between mb-4">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Unique Visitors</span>
+                                <span class="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 text-sm"><i class="fa-solid fa-user-check"></i></span>
+                            </div>
+                            <div class="text-4xl font-extrabold text-white font-mono" id="visitor-unique-visitors">0</div>
+                            <p class="text-[11px] text-slate-500 mt-2">Distinct addresses counted once per day.</p>
+                        </div>
+                    </div>
+
+                    <!-- How tracking works -->
+                    <div class="glass-panel rounded-2xl border border-slate-800 p-6">
+                        <h2 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-indigo-400"></i> How visitor tracking works
+                        </h2>
+                        <div class="grid sm:grid-cols-3 gap-4 text-[11px] text-slate-400 leading-relaxed">
+                            <div class="flex gap-3">
+                                <span class="w-7 h-7 rounded-lg bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center text-indigo-400 text-[10px] shrink-0">1</span>
+                                <p>The public page calls <span class="font-mono text-slate-300">POST /api/visitors/track</span> once on load. nginx serves the HTML directly, so the backend never sees the page request itself.</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <span class="w-7 h-7 rounded-lg bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center text-cyan-400 text-[10px] shrink-0">2</span>
+                                <p>The visit is recorded against the address taken from <span class="font-mono text-slate-300">X-Forwarded-For</span>, falling back to the direct peer address.</p>
+                            </div>
+                            <div class="flex gap-3">
+                                <span class="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 text-[10px] shrink-0">3</span>
+                                <p>Total visits count every hit; unique visitors count each address only once per day, so a reload never inflates the number.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== AI Coach ===== -->
+                <section class="admin-page hidden space-y-6" data-page="coach">
+                    <!-- Provider status -->
+                    <div class="glass-panel rounded-2xl border border-slate-800 p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-plug text-purple-400"></i> Provider Status
+                            </h2>
+                            <button type="button" id="ai-status-refresh" class="text-[11px] font-semibold text-indigo-300 hover:text-indigo-200 transition-colors">
+                                <i class="fa-solid fa-rotate mr-1"></i>Refresh
+                            </button>
+                        </div>
+                        <div class="grid sm:grid-cols-3 gap-3" id="ai-provider-grid"></div>
+                    </div>
+
+                    <!-- Conversation -->
+                    <div class="grid lg:grid-cols-5 gap-6">
+
+                        <!-- Input column -->
+                        <div class="lg:col-span-2 space-y-4">
+                            <!-- Coaching mode -->
+                            <div class="glass-panel rounded-2xl border border-slate-800 p-5">
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-3">What do you want to work on?</label>
+                                <div id="coach-modes" class="grid grid-cols-3 gap-2">
+                                    <button type="button" data-mode="practice"
+                                        class="coach-mode-btn flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl border text-[11px] font-bold transition-all">
+                                        <i class="fa-solid fa-language text-sm"></i><span>Practice</span>
+                                    </button>
+                                    <button type="button" data-mode="interview"
+                                        class="coach-mode-btn flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl border text-[11px] font-bold transition-all">
+                                        <i class="fa-solid fa-user-tie text-sm"></i><span>Interview</span>
+                                    </button>
+                                    <button type="button" data-mode="jobsearch"
+                                        class="coach-mode-btn flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl border text-[11px] font-bold transition-all">
+                                        <i class="fa-solid fa-briefcase text-sm"></i><span>Job Search</span>
+                                    </button>
+                                </div>
+                                <p id="coach-mode-hint" class="text-[11px] text-slate-500 mt-3 leading-relaxed"></p>
+                            </div>
+
+                            <div class="glass-panel rounded-2xl border border-slate-800 p-6 text-center">
+                                <div class="flex justify-center mb-4">
+                                    <button type="button" id="mic-btn"
+                                        class="w-20 h-20 rounded-full flex items-center justify-center text-2xl transition-all duration-300 bg-gradient-to-br from-indigo-600 to-cyan-500 text-white shadow-xl shadow-indigo-600/30 hover:scale-105">
+                                        <i class="fa-solid fa-microphone" id="mic-icon"></i>
+                                    </button>
+                                </div>
+                                <p id="mic-state-label" class="text-xs font-semibold text-slate-300">Ready to listen</p>
+                                <p id="mic-hint" class="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                                    Click the microphone to speak. If the microphone is unavailable, type your sentence below instead.
+                                </p>
+
+                                <div class="mt-5 pt-5 border-t border-slate-800 space-y-3">
+                                    <label for="coach-text" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 text-left">Type a sentence</label>
+                                    <textarea id="coach-text" rows="3" placeholder="e.g. I go to office yesterday"
+                                        class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors text-xs leading-relaxed"></textarea>
+                                    <button type="button" id="coach-send"
+                                        class="btn-shimmer w-full py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg shadow-indigo-600/20 hover:scale-[1.01] transition-all flex items-center justify-center gap-2">
+                                        <i class="fa-solid fa-paper-plane"></i><span>Get Coaching Reply</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="glass-panel rounded-2xl border border-slate-800 p-5 space-y-3">
+                                <label for="coach-voice" class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Voice</label>
+                                <select id="coach-voice"
+                                    class="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none focus:border-indigo-500 transition-colors text-xs">
+                                    <option value="en-US-AriaNeural">Aria (US, female)</option>
+                                    <option value="en-US-GuyNeural">Guy (US, male)</option>
+                                    <option value="en-US-JennyNeural">Jenny (US, female)</option>
+                                    <option value="en-GB-SoniaNeural">Sonia (UK, female)</option>
+                                    <option value="en-GB-RyanNeural">Ryan (UK, male)</option>
+                                    <option value="en-IN-SaraNeural">Sara (India, female)</option>
+                                    <option value="en-IN-AaravNeural">Aarav (India, male)</option>
+                                </select>
+                                <button type="button" id="coach-clear"
+                                    class="w-full px-3 py-2 rounded-xl text-[11px] font-semibold border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors">
+                                    <i class="fa-solid fa-eraser mr-1"></i>Clear conversation
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Output column -->
+                        <div class="lg:col-span-3 space-y-4">
+
+                            <!-- Status / error banner -->
+                            <div id="coach-status" class="hidden rounded-xl px-4 py-3 text-xs leading-relaxed border"></div>
+
+                            <!-- Latest answer -->
+                            <div id="coach-answer" class="hidden glass-panel rounded-2xl border border-slate-800 p-6 space-y-5">
+                                <div>
+                                    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-2">
+                                        <i class="fa-solid fa-spell-check text-emerald-400"></i>Corrected English
+                                    </div>
+                                    <p id="answer-corrected" class="text-base text-white font-semibold leading-relaxed"></p>
+                                </div>
+
+                                <div id="answer-tip-wrap" class="hidden">
+                                    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-2">
+                                        <i class="fa-solid fa-lightbulb text-amber-400"></i>Tip
+                                    </div>
+                                    <p id="answer-tip" class="text-xs text-slate-300 leading-relaxed"></p>
+                                </div>
+
+                                <div>
+                                    <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-2">
+                                        <i class="fa-solid fa-comment-dots text-indigo-400"></i>Coach Reply
+                                    </div>
+                                    <p id="answer-reply" class="text-sm text-slate-200 leading-relaxed"></p>
+                                </div>
+
+                                <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center gap-3">
+                                    <button type="button" id="answer-speak"
+                                        class="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-cyan-500 shadow-lg shadow-indigo-600/20 hover:scale-[1.02] transition-all flex items-center gap-2">
+                                        <i class="fa-solid fa-volume-high"></i><span>Speak Reply</span>
+                                    </button>
+                                    <span id="answer-meta" class="text-[10px] font-mono text-slate-500"></span>
+                                </div>
+                            </div>
+
+                            <!-- Transcript -->
+                            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                                <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between">
+                                    <h3 class="text-xs font-bold text-white">Conversation</h3>
+                                    <span id="turn-count" class="text-[10px] font-mono text-slate-500">0 turns</span>
+                                </div>
+                                <div id="coach-transcript" class="p-5 space-y-3 max-h-[420px] overflow-y-auto"></div>
+                                <div id="transcript-empty" class="py-12 text-center">
+                                    <i class="fa-regular fa-comments text-2xl text-slate-700 mb-2"></i>
+                                    <p class="text-xs text-slate-500">Speak or type a sentence to begin.</p>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
     </div>
-
+    <!-- ========================================
+         Admin console logic
+         ======================================== -->
     <script>
-        // Admin Dashboard Logic
-        const API_BASE = '';
-        let currentPage = 1;
-        const perPage = 20;
+    (function () {
+        'use strict';
 
-        // DOM Elements
-        const loginPage = document.getElementById('login-page');
-        const adminDashboard = document.getElementById('admin-dashboard');
-        const loginForm = document.getElementById('login-form');
-        const loginError = document.getElementById('login-error');
-        const logoutBtn = document.getElementById('logout-btn');
-        const adminUserEl = document.getElementById('admin-user');
-        const pageTitle = document.getElementById('page-title');
-        const navLinks = document.querySelectorAll('.admin-nav a[data-page]');
-        const pages = document.querySelectorAll('[id^="page-"]');
-
-        // Stats elements
-        const statElements = {
-            total: document.getElementById('stat-total'),
-            new: document.getElementById('stat-new'),
-            contacted: document.getElementById('stat-contacted'),
-            closed: document.getElementById('stat-closed'),
-            totalVisits: document.getElementById('stat-total-visits'),
-            todayVisits: document.getElementById('stat-today-visits'),
-            uniqueVisitors: document.getElementById('stat-unique-visitors'),
-            today: document.getElementById('stat-today')
+        // ========================================
+        // State
+        // ========================================
+        var state = {
+            authenticated: false,
+            page: 'dashboard',
+            adminName: 'admin',
+            stats: null,
+            inquiries: [],
+            pagination: { page: 1, per_page: 20, total: 0, total_pages: 1 },
+            filter: 'all',
+            search: '',
+            ai: {
+                configured: false,
+                providers: { llm: [], stt: [], tts: [] },
+                browser_fallback: {},
+                models: {}
+            },
+            coach: {
+                history: [],
+                mode: 'practice',
+                mediaRecorder: null,
+                mediaStream: null,
+                chunks: [],
+                recognition: null,
+                transcript: '',
+                stopping: false,
+                audioUrl: null,
+                audio: null,
+                busy: false,
+                speaking: false,
+                speakToken: 0,
+                phase: 'idle'
+            }
         };
 
-        // Check for existing session
-        async function checkAuth() {
+        // ========================================
+        // Constants
+        // ========================================
+        var API_BASE = '';
+        var PER_PAGE = 20;
+
+        var PAGE_META = {
+            dashboard: { title: 'Dashboard', subtitle: 'Overview of your pipeline and traffic.' },
+            inquiries: { title: 'Inquiries', subtitle: 'Every project request submitted from the public site.' },
+            visitors: { title: 'Visitors', subtitle: 'Traffic recorded across the public site.' },
+            coach: { title: 'AI Coach', subtitle: 'Speak English, get corrections and a spoken reply.' }
+        };
+
+        var SERVICE_LABELS = {
+            'web-development': 'Web Development',
+            'mobile-app': 'Mobile App Development',
+            'ai-agent': 'AI Agent Development',
+            'backend': 'Backend Architecture',
+            'ui-ux': 'UI/UX Product Design',
+            'devops': 'DevOps & Maintenance',
+            'consultation': 'Consultation & Strategy',
+            'other': 'Other'
+        };
+
+        var TIMELINE_LABELS = {
+            'asap': 'ASAP',
+            '1-2-months': '1-2 Months',
+            '3-6-months': '3-6 Months',
+            '6-months-plus': '6+ Months',
+            'flexible': 'Flexible'
+        };
+
+        var STATUS_META = {
+            new: { label: 'New', chip: 'bg-sky-500/15 border-sky-500/30 text-sky-300' },
+            contacted: { label: 'Contacted', chip: 'bg-amber-500/15 border-amber-500/30 text-amber-300' },
+            closed: { label: 'Closed', chip: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300' }
+        };
+
+        // ========================================
+        // Tiny DOM helpers
+        // ========================================
+        function $(selector, root) {
+            return (root || document).querySelector(selector);
+        }
+
+        function $$(selector, root) {
+            return Array.prototype.slice.call((root || document).querySelectorAll(selector));
+        }
+
+        function makeEl(tag, className, text) {
+            var el = document.createElement(tag);
+            if (className) { el.className = className; }
+            if (text !== undefined && text !== null) { el.textContent = text; }
+            return el;
+        }
+
+        function setText(selector, value) {
+            var el = $(selector);
+            if (!el) { return; }
+            el.textContent = (value === undefined || value === null) ? '' : String(value);
+        }
+
+        function setNum(selector, value) {
+            var el = $(selector);
+            if (!el) { return; }
+            var n = Number(value);
+            el.textContent = isFinite(n) ? n.toLocaleString() : '0';
+        }
+
+        function formatDate(value) {
+            if (!value) { return '—'; }
+            // The backend stores naive UTC timestamps, so mark them as UTC.
+            var raw = String(value);
+            if (!/(Z|[+-]\d{2}:?\d{2})$/.test(raw)) { raw += 'Z'; }
+            var d = new Date(raw);
+            if (isNaN(d.getTime())) { return '—'; }
             try {
-                const res = await fetch('/admin/stats', {
-                    credentials: 'include'
+                return d.toLocaleString(undefined, {
+                    month: 'short', day: 'numeric', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit'
                 });
-                if (res.ok) {
-                    showDashboard();
-                    return true;
-                }
-            } catch (e) {}
-            return false;
-        }
-
-        async function showDashboard() {
-            loginPage.style.display = 'none';
-            adminDashboard.style.display = 'grid';
-            await loadDashboard();
-        }
-
-        function showLogin() {
-            adminDashboard.style.display = 'none';
-            loginPage.style.display = 'flex';
-        }
-
-        // Login handler
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            loginError.style.display = 'none';
-
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const res = await fetch('/admin/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ username, password }),
-                    credentials: 'include'
-                });
-
-                if (res.ok) {
-                    await showDashboard();
-                } else {
-                    loginError.textContent = 'Invalid credentials';
-                    loginError.style.display = 'block';
-                }
             } catch (e) {
-                loginError.textContent = 'Login failed. Please try again.';
-                loginError.style.display = 'block';
+                return d.toISOString().slice(0, 16).replace('T', ' ');
             }
-        });
+        }
 
-        logoutBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await fetch('/admin/logout', { method: 'POST', credentials: 'include' });
-            showLogin();
-        });
+        function serviceLabel(key) {
+            return SERVICE_LABELS[key] || key || '—';
+        }
 
-        // Navigation
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (link.id === 'logout-btn') return;
+        function timelineLabel(key) {
+            if (!key) { return '—'; }
+            return TIMELINE_LABELS[key] || key;
+        }
 
-                navLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-
-                const page = link.dataset.page;
-                pages.forEach(p => p.style.display = 'none');
-                document.getElementById(`page-${page}`).style.display = 'block';
-                document.getElementById('page-title').textContent = page.charAt(0).toUpperCase() + page.slice(1);
-
-                if (page === 'dashboard') loadDashboard();
-                else if (page === 'inquiries') loadInquiries(1);
-                else if (page === 'visitors') loadVisitorStats();
+        // ========================================
+        // API layer
+        // ========================================
+        function readErrorDetail(response) {
+            // The backend returns detail as either a string or a pydantic
+            // array of {msg, loc, type} objects (422 validation errors).
+            return response.text().then(function (bodyText) {
+                var fallback = 'Request failed (' + response.status + ')';
+                if (!bodyText) { return fallback; }
+                try {
+                    var body = JSON.parse(bodyText);
+                    var detail = body && body.detail;
+                    if (typeof detail === 'string' && detail) { return detail; }
+                    if (Array.isArray(detail) && detail.length) {
+                        return detail.map(function (item) {
+                            if (item && typeof item.msg === 'string') { return item.msg; }
+                            return String(item);
+                        }).join(' · ');
+                    }
+                    if (detail) { return String(detail); }
+                } catch (e) {
+                    if (bodyText.length < 200) { return bodyText; }
+                }
+                return fallback;
             });
+        }
+
+        function apiFetch(path, options) {
+            var opts = options || {};
+            var request = {
+                method: opts.method || 'GET',
+                credentials: 'include',
+                headers: opts.headers || {}
+            };
+
+            var body = opts.body;
+            var isForm = (typeof FormData !== 'undefined') && (body instanceof FormData);
+            if (body !== undefined && body !== null && !isForm && typeof body !== 'string') {
+                request.headers['Content-Type'] = 'application/json';
+                request.body = JSON.stringify(body);
+            } else if (body !== undefined && body !== null) {
+                request.body = body;
+            }
+
+            return fetch(API_BASE + path, request).then(function (response) {
+                if (response.status === 401 && !opts.keepOn401) {
+                    state.authenticated = false;
+                    showLoginView();
+                    throw new Error('Your session has expired. Please sign in again.');
+                }
+                if (!response.ok) {
+                    return readErrorDetail(response).then(function (message) {
+                        throw new Error(message);
+                    });
+                }
+                var contentType = response.headers.get('content-type') || '';
+                if (contentType.indexOf('application/json') !== -1) {
+                    return response.json();
+                }
+                // Raw payloads (e.g. audio/mpeg from /api/ai/speak).
+                return response;
+            }, function () {
+                throw new Error('Network error — the backend is not reachable.');
+            });
+        }
+
+        // ========================================
+        // View switching
+        // ========================================
+        function showLoginView() {
+            state.authenticated = false;
+            $('#login-view').classList.remove('hidden');
+            $('#app-view').classList.add('hidden');
+            $('#login-password').value = '';
+            setLoginError('');
+            document.title = 'Admin Console | A2M Digital Solutions';
+        }
+
+        function showAppView() {
+            state.authenticated = true;
+            $('#login-view').classList.add('hidden');
+            $('#app-view').classList.remove('hidden');
+            document.title = 'Admin Console | A2M Digital Solutions';
+        }
+
+        function setLoginError(message) {
+            var box = $('#login-error');
+            var text = $('#login-error-text');
+            if (!box || !text) { return; }
+            if (message) {
+                text.textContent = message;
+                box.classList.remove('hidden');
+            } else {
+                text.textContent = '';
+                box.classList.add('hidden');
+            }
+        }
+
+        // ========================================
+        // Authentication
+        // ========================================
+        function handleLogin(event) {
+            event.preventDefault();
+            var username = $('#login-username').value.trim();
+            var password = $('#login-password').value;
+            var button = $('#login-submit');
+
+            setLoginError('');
+            if (!username || !password) {
+                setLoginError('Enter both a username and a password.');
+                return;
+            }
+
+            button.disabled = true;
+            button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Signing in…</span>';
+
+            apiFetch('/api/admin/login', {
+                method: 'POST',
+                body: { username: username, password: password },
+                keepOn401: true
+            }).then(function () {
+                // The server sets an httpOnly cookie. Nothing is stored in JS.
+                $('#login-password').value = '';
+                return enterApp();
+            }).catch(function (error) {
+                setLoginError(error.message);
+            }).then(function () {
+                button.disabled = false;
+                button.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Sign In</span>';
+            });
+        }
+
+        function handleLogout() {
+            apiFetch('/api/admin/logout', { method: 'POST', keepOn401: true })
+                .catch(function () { /* logging out locally is enough */ })
+                .then(function () {
+                    state.coach.history = [];
+                    state.inquiries = [];
+                    state.stats = null;
+                    showLoginView();
+                });
+        }
+
+        function enterApp() {
+            showAppView();
+            return Promise.all([loadStats(), loadAiStatus(), loadInquiries()])
+                .then(function () {
+                    setPage('dashboard');
+                })
+                .catch(function (error) {
+                    setCoachStatus(error.message, 'error');
+                });
+        }
+
+        // A 200 from /api/admin/stats means the session cookie is still valid.
+        function bootstrap() {
+            apiFetch('/api/admin/stats').then(function (stats) {
+                state.authenticated = true;
+                renderStats(stats);
+                showAppView();
+                return Promise.all([loadStats(), loadAiStatus(), loadInquiries()]);
+            }).then(function () {
+                setPage('dashboard');
+            }).catch(function () {
+                showLoginView();
+            });
+        }
+        // ========================================
+        // Page routing
+        // ========================================
+        function setPage(page) {
+            var target = PAGE_META[page] ? page : 'dashboard';
+            state.page = target;
+
+            // Page panels are selected by their explicit .admin-page class.
+            $$('.admin-page').forEach(function (panel) {
+                panel.classList.toggle('hidden', panel.getAttribute('data-page') !== target);
+            });
+
+            $$('.admin-nav-link').forEach(function (link) {
+                link.classList.toggle('active', link.getAttribute('data-page') === target);
+            });
+
+            var meta = PAGE_META[target];
+            setText('#page-title', meta.title);
+            setText('#page-subtitle', meta.subtitle);
+
+            if (target === 'dashboard') { loadStats(); }
+            if (target === 'inquiries') { loadInquiries(); }
+            if (target === 'visitors') { loadVisitors(); }
+            if (target === 'coach') { loadAiStatus(); }
+
+            closeSidebar();
+        }
+
+        function toggleSidebar() {
+            var sidebar = $('#sidebar');
+            var backdrop = $('#sidebar-backdrop');
+            var isOpen = sidebar.classList.toggle('open');
+            if (isOpen) {
+                backdrop.classList.remove('hidden');
+            } else {
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        function closeSidebar() {
+            var sidebar = $('#sidebar');
+            if (!sidebar) { return; }
+            sidebar.classList.remove('open');
+            var backdrop = $('#sidebar-backdrop');
+            if (backdrop) { backdrop.classList.add('hidden'); }
+        }
+
+        // ========================================
+        // Dashboard / stats
+        // ========================================
+        function renderStats(stats) {
+            var data = stats || {};
+            state.stats = data;
+
+            setNum('#stat-total', data.total);
+            setNum('#stat-new', data.new);
+            setNum('#stat-contacted', data.contacted);
+            setNum('#stat-closed', data.closed);
+            setNum('#stat-total-visits', data.total_visits);
+            setNum('#stat-today-visits', data.today_visits);
+            setNum('#stat-unique-visitors', data.unique_visitors);
+            setNum('#nav-inquiry-count', data.total);
+
+            if (data.admin) {
+                state.adminName = String(data.admin);
+                setText('#admin-chip-name', state.adminName);
+                setText('#sidebar-admin-name', state.adminName);
+                setText('#sidebar-admin-avatar', state.adminName.charAt(0).toUpperCase());
+            }
+        }
+
+        function loadStats() {
+            return apiFetch('/api/admin/stats').then(renderStats).catch(function (error) {
+                setCoachStatus(error.message, 'error');
+            });
+        }
+
+        // ========================================
+        // Inquiries
+        // ========================================
+        function loadInquiries() {
+            var page = state.pagination.page;
+            var query = '?page=' + page + '&per_page=' + PER_PAGE;
+            if (state.filter && state.filter !== 'all') {
+                query += '&status_filter=' + encodeURIComponent(state.filter);
+            }
+
+            return apiFetch('/api/inquiries' + query).then(function (data) {
+                state.pagination = {
+                    page: data.page || page,
+                    per_page: data.per_page || PER_PAGE,
+                    total: data.total || 0,
+                    total_pages: data.total_pages || 1
+                };
+                state.inquiries = data.inquiries || [];
+                renderInquiries();
+                renderRecentInquiries();
+            }).catch(function (error) {
+                setCoachStatus(error.message, 'error');
+            });
+        }
+
+        function matchesSearch(item) {
+            if (!state.search) { return true; }
+            var needle = state.search.toLowerCase();
+            var haystack = [item.name, item.email, item.message, item.service]
+                .map(function (v) { return v ? String(v) : ''; })
+                .join(' ')
+                .toLowerCase();
+            return haystack.indexOf(needle) !== -1;
+        }
+
+        function renderInquiries() {
+            var tbody = $('#inquiries-body');
+            var empty = $('#inquiries-empty');
+            var table = $('table');
+            var rows = state.inquiries.filter(matchesSearch);
+
+            tbody.replaceChildren();
+
+            if (!rows.length) {
+                empty.classList.remove('hidden');
+                table.classList.add('hidden');
+            } else {
+                empty.classList.add('hidden');
+                table.classList.remove('hidden');
+            }
+
+            rows.forEach(function (item) {
+                tbody.appendChild(buildInquiryRow(item));
+            });
+
+            setText('#inquiry-count-label',
+                state.pagination.total + (state.pagination.total === 1 ? ' inquiry' : ' inquiries') +
+                (state.filter !== 'all' ? ' · ' + state.filter : ''));
+            renderPagination();
+        }
+
+        function buildInquiryRow(item) {
+            var tr = document.createElement('tr');
+            tr.className = 'align-top hover:bg-slate-900/40 transition-colors';
+
+            // --- Client ---
+            var clientTd = document.createElement('td');
+            clientTd.className = 'px-5 py-4';
+            var nameEl = makeEl('div', 'text-sm font-semibold text-white', item.name || '—');
+            var emailEl = makeEl('div', 'text-[11px] text-indigo-300 mt-0.5 break-all', item.email || '—');
+            var phoneEl = makeEl('div', 'text-[11px] text-slate-500 mt-0.5', item.phone || 'No phone');
+            clientTd.appendChild(nameEl);
+            clientTd.appendChild(emailEl);
+            clientTd.appendChild(phoneEl);
+            tr.appendChild(clientTd);
+
+            // --- Service ---
+            var serviceTd = document.createElement('td');
+            serviceTd.className = 'px-5 py-4';
+            serviceTd.appendChild(makeEl('span', 'text-xs text-slate-300', serviceLabel(item.service)));
+            tr.appendChild(serviceTd);
+
+            // --- Timeline ---
+            var timelineTd = document.createElement('td');
+            timelineTd.className = 'px-5 py-4';
+            timelineTd.appendChild(makeEl('span', 'text-xs text-slate-400', timelineLabel(item.timeline)));
+            tr.appendChild(timelineTd);
+
+            // --- Message ---
+            var messageTd = document.createElement('td');
+            messageTd.className = 'px-5 py-4 max-w-xs';
+            var messageText = makeEl('p', 'msg-clamp text-xs text-slate-300 leading-relaxed break-words', item.message || '—');
+            messageText.title = item.message || '';
+            var moreButton = makeEl('button', 'mt-1.5 text-[10px] font-semibold text-indigo-300 hover:text-indigo-200 transition-colors', 'More');
+            moreButton.type = 'button';
+            moreButton.addEventListener('click', function () {
+                var isClamped = messageText.classList.toggle('msg-clamp');
+                moreButton.textContent = isClamped ? 'More' : 'Less';
+            });
+            messageTd.appendChild(messageText);
+            messageTd.appendChild(moreButton);
+            tr.appendChild(messageTd);
+
+            // --- Status ---
+            var statusTd = document.createElement('td');
+            statusTd.className = 'px-5 py-4';
+            var select = document.createElement('select');
+            select.className = 'text-[11px] font-semibold px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors';
+            ['new', 'contacted', 'closed'].forEach(function (value) {
+                var option = document.createElement('option');
+                option.value = value;
+                option.textContent = STATUS_META[value].label;
+                if (item.status === value) { option.selected = true; }
+                select.appendChild(option);
+            });
+            select.addEventListener('change', function () {
+                updateInquiryStatus(item.id, select.value, select);
+            });
+            statusTd.appendChild(select);
+            tr.appendChild(statusTd);
+
+            // --- Received ---
+            var dateTd = document.createElement('td');
+            dateTd.className = 'px-5 py-4 whitespace-nowrap';
+            dateTd.appendChild(makeEl('span', 'text-[11px] text-slate-400 font-mono', formatDate(item.created_at)));
+            tr.appendChild(dateTd);
+
+            return tr;
+        }
+
+        function updateInquiryStatus(id, status, select) {
+            var previous = select.dataset.previous;
+            select.disabled = true;
+
+            apiFetch('/api/inquiries/' + id + '/status', {
+                method: 'PATCH',
+                body: { status: status }
+            }).then(function () {
+                select.dataset.previous = status;
+                state.inquiries.forEach(function (item) {
+                    if (item.id === id) { item.status = status; }
+                });
+                loadStats();
+            }).catch(function (error) {
+                if (previous) { select.value = previous; }
+                setCoachStatus(error.message, 'error');
+            }).then(function () {
+                select.disabled = false;
+            });
+        }
+
+        function renderPagination() {
+            var pagination = state.pagination;
+            var from = pagination.total === 0 ? 0 : ((pagination.page - 1) * pagination.per_page) + 1;
+            var to = Math.min(pagination.page * pagination.per_page, pagination.total);
+
+            setText('#pagination-label',
+                pagination.total === 0
+                    ? 'No records'
+                    : 'Showing ' + from + '–' + to + ' of ' + pagination.total);
+
+            var prev = $('#page-prev');
+            var next = $('#page-next');
+            prev.disabled = pagination.page <= 1;
+            next.disabled = pagination.page >= pagination.total_pages;
+        }
+
+        function renderRecentInquiries() {
+            var container = $('#recent-inquiries');
+            container.replaceChildren();
+
+            var recent = state.inquiries.slice(0, 5);
+            if (!recent.length) {
+                var empty = makeEl('div', 'py-12 text-center');
+                empty.appendChild(makeEl('i', 'fa-regular fa-folder-open text-2xl text-slate-700 mb-2 block'));
+                empty.appendChild(makeEl('p', 'text-xs text-slate-500', 'No inquiries yet.'));
+                container.appendChild(empty);
+                return;
+            }
+
+            recent.forEach(function (item) {
+                var row = document.createElement('div');
+                row.className = 'px-5 py-4 flex items-center gap-4';
+
+                var avatar = makeEl('span', 'w-9 h-9 rounded-lg bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center text-indigo-300 text-xs font-bold shrink-0',
+                    (item.name || '?').charAt(0).toUpperCase());
+                row.appendChild(avatar);
+
+                var body = document.createElement('div');
+                body.className = 'min-w-0 flex-1';
+                body.appendChild(makeEl('div', 'text-xs font-semibold text-white truncate', item.name || '—'));
+                body.appendChild(makeEl('div', 'text-[11px] text-slate-500 truncate', serviceLabel(item.service) + ' · ' + (item.email || '')));
+                row.appendChild(body);
+
+                var status = STATUS_META[item.status] || STATUS_META.new;
+                var chip = makeEl('span', 'text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 ' + status.chip, status.label);
+                row.appendChild(chip);
+
+                var when = makeEl('span', 'text-[10px] text-slate-500 font-mono shrink-0 hidden sm:block', formatDate(item.created_at));
+                row.appendChild(when);
+
+                container.appendChild(row);
+            });
+        }
+
+        // ========================================
+        // Visitors
+        // ========================================
+        function renderVisitors(data) {
+            var payload = data || {};
+            setNum('#visitor-total-visits', payload.total_visits);
+            setNum('#visitor-today-visits', payload.today_visits);
+            setNum('#visitor-unique-visitors', payload.unique_visitors);
+        }
+
+        function loadVisitors() {
+            return apiFetch('/api/visitors').then(renderVisitors).catch(function (error) {
+                setCoachStatus(error.message, 'error');
+            });
+        }
+        // ========================================
+        // AI status
+        // ========================================
+        function renderAiStatus(data) {
+            var payload = data || {};
+            state.ai = {
+                configured: !!payload.configured,
+                providers: payload.providers || { llm: [], stt: [], tts: [] },
+                browser_fallback: payload.browser_fallback || {},
+                models: payload.models || {}
+            };
+
+            renderAiPill();
+            renderProviderGrid();
+        }
+
+        function readyProvider(stage) {
+            var list = (state.ai.providers && state.ai.providers[stage]) || [];
+            for (var i = 0; i < list.length; i++) {
+                if (list[i] && list[i].ready) { return list[i]; }
+            }
+            return null;
+        }
+
+        function renderAiPill() {
+            var pill = $('#ai-pill');
+            var dot = $('#ai-pill-dot');
+            var text = $('#ai-pill-text');
+            if (!pill || !dot || !text) { return; }
+
+            var llm = readyProvider('llm');
+            var tts = readyProvider('tts');
+
+            if (llm && tts) {
+                pill.className = 'hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold border bg-emerald-500/10 border-emerald-500/30 text-emerald-300';
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+                text.textContent = 'AI ready';
+                pill.title = 'LLM: ' + llm.name + ' · TTS: ' + tts.name;
+            } else {
+                pill.className = 'hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold border bg-amber-500/10 border-amber-500/30 text-amber-300';
+                dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+                text.textContent = 'AI degraded';
+                pill.title = llm ? ('TTS unavailable — ' + llm.name) : 'No LLM provider is ready';
+            }
+        }
+
+        function renderProviderGrid() {
+            var grid = $('#ai-provider-grid');
+            if (!grid) { return; }
+            grid.replaceChildren();
+
+            var stages = [
+                { key: 'llm', label: 'Language Model', icon: 'fa-brain', tone: 'indigo' },
+                { key: 'stt', label: 'Speech to Text', icon: 'fa-waveform-lines', tone: 'cyan' },
+                { key: 'tts', label: 'Text to Speech', icon: 'fa-volume-high', tone: 'purple' }
+            ];
+
+            stages.forEach(function (stage) {
+                var provider = readyProvider(stage.key);
+                var list = (state.ai.providers && state.ai.providers[stage.key]) || [];
+
+                var card = document.createElement('div');
+                card.className = 'rounded-xl bg-slate-950/50 border border-slate-800 p-4';
+
+                var head = document.createElement('div');
+                head.className = 'flex items-center justify-between mb-2';
+                var title = makeEl('span', 'text-[11px] font-bold uppercase tracking-wider text-slate-400', stage.label);
+                head.appendChild(title);
+
+                var badge = makeEl('span',
+                    'text-[10px] font-bold px-2 py-0.5 rounded-full border ' +
+                    (provider ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300' : 'bg-slate-800/60 border-slate-700 text-slate-400'),
+                    provider ? 'Ready' : 'Unavailable');
+                head.appendChild(badge);
+                card.appendChild(head);
+
+                var name = makeEl('p', 'text-sm font-semibold text-white', provider ? provider.name : 'None configured');
+                card.appendChild(name);
+
+                var detail = provider ? provider.detail : '—';
+                var detailEl = makeEl('p', 'text-[11px] text-slate-500 mt-1 break-words', detail);
+                card.appendChild(detailEl);
+
+                if (!provider && stage.key === 'stt' && state.ai.browser_fallback && state.ai.browser_fallback.speech_recognition) {
+                    card.appendChild(makeEl('p', 'text-[10px] text-cyan-400 mt-2', 'Browser speech recognition will be used instead.'));
+                }
+                if (!provider && stage.key === 'tts' && state.ai.browser_fallback && state.ai.browser_fallback.speech_synthesis) {
+                    card.appendChild(makeEl('p', 'text-[10px] text-cyan-400 mt-2', 'Browser speech synthesis will be used instead.'));
+                }
+                if (!provider && list.length) {
+                    card.appendChild(makeEl('p', 'text-[10px] text-slate-600 mt-2', 'Tried: ' + list.map(function (p) { return p.name; }).join(', ')));
+                }
+
+                grid.appendChild(card);
+            });
+        }
+
+        function loadAiStatus() {
+            return apiFetch('/api/ai/status').then(renderAiStatus).catch(function (error) {
+                setCoachStatus(error.message, 'error');
+            });
+        }
+
+        // ========================================
+        // Coach status banner
+        // ========================================
+        function setCoachStatus(message, kind) {
+            var banner = $('#coach-status');
+            if (!banner) { return; }
+            if (!message) {
+                banner.classList.add('hidden');
+                banner.textContent = '';
+                return;
+            }
+            var tone = kind === 'error'
+                ? 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                : 'bg-indigo-500/10 border-indigo-500/30 text-indigo-200';
+            banner.className = 'rounded-xl px-4 py-3 text-xs leading-relaxed border ' + tone;
+            banner.textContent = message;
+        }
+
+        // ========================================
+        // Coach state machine
+        // idle -> recording -> transcribing -> thinking -> speaking
+        // ========================================
+        function setCoachState(name) {
+            var button = $('#mic-btn');
+            var icon = $('#mic-icon');
+            var label = $('#mic-state-label');
+            var hint = $('#mic-hint');
+
+            state.coach.phase = name;
+
+            button.classList.remove('mic-recording', 'bg-gradient-to-br', 'from-indigo-600', 'to-cyan-500', 'bg-rose-500', 'bg-amber-500', 'bg-purple-500');
+
+            if (name === 'recording') {
+                button.classList.add('mic-recording', 'bg-rose-500', 'text-white');
+                icon.className = 'fa-solid fa-stop';
+                label.textContent = 'Listening… click again to send';
+                hint.textContent = 'Speak for as long as you like — speak as many lines as you want. Click the microphone again to send your answer.';
+            } else if (name === 'transcribing') {
+                button.classList.add('bg-amber-500', 'text-white');
+                icon.className = 'fa-solid fa-spinner fa-spin';
+                label.textContent = 'Transcribing…';
+                hint.textContent = 'Converting your speech into text.';
+            } else if (name === 'thinking') {
+                button.classList.add('bg-purple-500', 'text-white');
+                icon.className = 'fa-solid fa-spinner fa-spin';
+                label.textContent = 'Thinking…';
+                hint.textContent = 'Checking your grammar and preparing a reply.';
+            } else if (name === 'speaking') {
+                button.classList.add('bg-emerald-500', 'text-white');
+                icon.className = 'fa-solid fa-volume-high';
+                label.textContent = 'Speaking…';
+                hint.textContent = 'Playing the coach reply aloud.';
+            } else {
+                button.classList.add('bg-gradient-to-br', 'from-indigo-600', 'to-cyan-500', 'text-white');
+                icon.className = 'fa-solid fa-microphone';
+                label.textContent = 'Ready to listen';
+                hint.textContent = 'Click the microphone to speak. If the microphone is unavailable, type your sentence below instead.';
+            }
+        }
+
+        // ========================================
+        // Microphone capture
+        // ========================================
+        function serverSttReady() {
+            return !!readyProvider('stt');
+        }
+
+        function startCapture() {
+            if (state.coach.busy) {
+                // A request really is in flight. Say so - a click that is
+                // silently ignored looks exactly like a broken microphone.
+                setCoachStatus('Still working on the last reply - one moment.', 'info');
+                return;
+            }
+
+            // The coach is still talking. Talk over it: stop the audio and
+            // start listening. Blocking the microphone until the audio had
+            // finished was the reason the second attempt appeared to do
+            // nothing at all.
+            if (state.coach.speaking) {
+                stopSpeaking();
+                setCoachState('idle');
+            }
+
+            // Already capturing with MediaRecorder -> stop and submit.
+            if (state.coach.mediaRecorder && state.coach.mediaRecorder.state === 'recording') {
+                stopRecording();
+                return;
+            }
+
+            // Already listening with the browser recogniser -> stop and submit.
+            if (state.coach.recognition) {
+                stopBrowserRecognition();
+                return;
+            }
+
+            // A server-side STT provider is preferred; otherwise fall back to
+            // the browser's own SpeechRecognition API.
+            if (serverSttReady() && navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder) {
+                startRecording();
+                return;
+            }
+
+            if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+                startBrowserRecognition();
+                return;
+            }
+
+            setCoachStatus(
+                'No speech capture is available in this browser. Use the text box below instead.',
+                'error'
+            );
+        }
+
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+                var recorder = new MediaRecorder(stream);
+                state.coach.mediaStream = stream;
+                state.coach.mediaRecorder = recorder;
+                state.coach.chunks = [];
+                setCoachStatus('');
+
+                recorder.ondataavailable = function (event) {
+                    if (event.data && event.data.size > 0) {
+                        state.coach.chunks.push(event.data);
+                    }
+                };
+                recorder.onstop = onRecordingStopped;
+                recorder.start();
+                setCoachState('recording');
+            }).catch(function (error) {
+                state.coach.mediaRecorder = null;
+                setCoachState('idle');
+                setCoachStatus(
+                    'Microphone unavailable: ' + error.message + '. Type your sentence below instead.',
+                    'error'
+                );
+            });
+        }
+
+        function stopRecording() {
+            var recorder = state.coach.mediaRecorder;
+            if (recorder && recorder.state === 'recording') {
+                recorder.stop();
+            }
+        }
+
+        function onRecordingStopped() {
+            var stream = state.coach.mediaStream;
+            if (stream) {
+                stream.getTracks().forEach(function (track) { track.stop(); });
+            }
+            state.coach.mediaStream = null;
+            state.coach.mediaRecorder = null;
+
+            var chunks = state.coach.chunks;
+            state.coach.chunks = [];
+
+            if (!chunks.length) {
+                setCoachState('idle');
+                setCoachStatus('Nothing was recorded. Please try again.', 'error');
+                return;
+            }
+
+            var mimeType = chunks[0].type || 'audio/webm';
+            var blob = new Blob(chunks, { type: mimeType });
+            setCoachState('transcribing');
+
+            var form = new FormData();
+            // The field name MUST be "file" — the backend reads it by that name.
+            form.append('file', blob, 'speech.webm');
+
+            apiFetch('/api/ai/transcribe', { method: 'POST', body: form })
+                .then(function (data) {
+                    var text = (data && data.text) ? String(data.text).trim() : '';
+                    if (!text) {
+                        setCoachState('idle');
+                        setCoachStatus('The transcription came back empty. Please try again.', 'error');
+                        return;
+                    }
+                    $('#coach-text').value = text;
+                    sendCoachText(text);
+                })
+                .catch(function (error) {
+                    setCoachState('idle');
+                    setCoachStatus(error.message, 'error');
+                });
+        }
+
+        function startBrowserRecognition() {
+            var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            var recognition = new Recognition();
+            recognition.lang = 'en-US';
+            // Interim results + continuous mode: the user can speak for as long
+            // as they like, over as many lines as they like. Nothing is sent
+            // until they click the microphone a second time.
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+            recognition.continuous = true;
+
+            state.coach.recognition = recognition;
+            state.coach.transcript = '';
+            state.coach.stopping = false;
+            setCoachStatus('');
+
+            recognition.onstart = function () {
+                setCoachState('recording');
+            };
+
+            recognition.onresult = function (event) {
+                // Rebuild the whole transcript from event.results — in continuous
+                // mode this holds every final line plus the current interim one.
+                var text = '';
+                for (var i = 0; i < event.results.length; i++) {
+                    var alternative = event.results[i][0];
+                    if (alternative && alternative.transcript) {
+                        text += alternative.transcript;
+                    }
+                }
+                text = text.trim();
+
+                state.coach.transcript = text;
+
+                if (state.coach.stopping) {
+                    // The user clicked stop — send it.
+                    submitBrowserTranscript();
+                    return;
+                }
+
+                // Still listening: show the live text, but do NOT send yet.
+                if (text) {
+                    $('#coach-text').value = text;
+                }
+            };
+
+            recognition.onerror = function (event) {
+                var reason = (event && event.error) ? event.error : 'unknown error';
+                if (reason === 'aborted' && state.coach.stopping) {
+                    return;
+                }
+                state.coach.recognition = null;
+                state.coach.stopping = false;
+                // If the answer was already submitted, the request is in flight
+                // and owns the button state - do not stomp on it.
+                if (!state.coach.busy) {
+                    setCoachState('idle');
+                }
+                setCoachStatus(
+                    'Browser speech recognition failed (' + reason + '). Type your sentence below instead.',
+                    'error'
+                );
+            };
+
+            recognition.onend = function () {
+                state.coach.recognition = null;
+                if (state.coach.stopping) {
+                    submitBrowserTranscript();
+                    return;
+                }
+                // The browser ended the session on its own (long silence, or the
+                // user denied permission). Send whatever was picked up.
+                if (state.coach.transcript.trim()) {
+                    submitBrowserTranscript();
+                } else if (!state.coach.busy) {
+                    // Nothing captured and no request in flight -> back to idle.
+                    // If the transcript was already submitted, submitBrowserTranscript
+                    // has cleared it and the in-flight request owns the button
+                    // state ('thinking' / 'speaking'), so leave it alone.
+                    state.coach.stopping = false;
+                    setCoachState('idle');
+                }
+            };
+
+            try {
+                recognition.start();
+            } catch (error) {
+                state.coach.recognition = null;
+                setCoachState('idle');
+                setCoachStatus('Could not start speech recognition: ' + error.message, 'error');
+            }
+        }
+
+        // Second click on the mic: stop listening and send what was said.
+        function stopBrowserRecognition() {
+            var recognition = state.coach.recognition;
+            if (!recognition) { return; }
+            state.coach.stopping = true;
+            $('#mic-state-label').textContent = 'Sending…';
+            try {
+                recognition.stop();
+            } catch (error) {
+                state.coach.recognition = null;
+                state.coach.stopping = false;
+                setCoachState('idle');
+                setCoachStatus('Could not stop speech recognition: ' + error.message, 'error');
+            }
+        }
+
+        function submitBrowserTranscript() {
+            var text = (state.coach.transcript || '').trim();
+            state.coach.transcript = '';
+            state.coach.stopping = false;
+            state.coach.recognition = null;
+
+            if (!text) {
+                setCoachState('idle');
+                setCoachStatus('Nothing was picked up. Please try again, or type your sentence.', 'error');
+                return;
+            }
+
+            $('#coach-text').value = text;
+            sendCoachText(text);
+        }
+
+        // ========================================
+        // Coach conversation
+        // ========================================
+        var COACH_MODE_HINTS = {
+            practice: 'Corrects your English and keeps the conversation going.',
+            interview: 'The coach plays the interviewer: one question per turn, plus how to improve your answer.',
+            jobsearch: 'Help with the hunt: explaining your resignation, your CV, and how to sell your experience.'
+        };
+
+        function setCoachMode(mode) {
+            state.coach.mode = COACH_MODE_HINTS[mode] ? mode : 'practice';
+            var buttons = document.querySelectorAll('#coach-modes .coach-mode-btn');
+            Array.prototype.forEach.call(buttons, function (button) {
+                var active = button.getAttribute('data-mode') === state.coach.mode;
+                button.className = 'coach-mode-btn flex flex-col items-center justify-center gap-1.5 py-3 px-2 rounded-xl border text-[11px] font-bold transition-all '
+                    + (active
+                        ? 'bg-indigo-600/20 border-indigo-500/50 text-indigo-200 shadow-lg shadow-indigo-600/10'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700');
+            });
+            setText('#coach-mode-hint', COACH_MODE_HINTS[state.coach.mode]);
+        }
+
+        function sendCoachText(rawText) {
+            var text = (rawText || '').trim();
+            if (!text || state.coach.busy) { return; }
+
+            // A new message replaces whatever the coach was saying.
+            stopSpeaking();
+
+            state.coach.busy = true;
+            setCoachStatus('');
+            setCoachState('thinking');
+            $('#coach-send').disabled = true;
+
+            var history = state.coach.history.slice(-6);
+
+            apiFetch('/api/ai/chat', {
+                method: 'POST',
+                body: { text: text, history: history, mode: state.coach.mode }
+            }).then(function (data) {
+                var answer = data || {};
+                state.coach.history.push({ role: 'user', content: text });
+                // The assistant turn goes back into the history as the JSON
+                // object, not as the spoken reply. A model that can see its
+                // own previous turn in the required format keeps answering in
+                // that format; when it sees plain prose there it copies the
+                // prose and stops returning JSON.
+                state.coach.history.push({
+                    role: 'assistant',
+                    content: JSON.stringify({
+                        corrected: answer.corrected || text,
+                        reply: answer.reply || '',
+                        tip: answer.tip || ''
+                    })
+                });
+
+                renderAnswer(answer);
+                appendTurn('user', text);
+                appendTurn('assistant', answer.reply || '', answer.tip || '');
+
+                // The reply is on screen now, so the input is free again.
+                // Holding it locked until the audio had finished meant the
+                // microphone refused the user's next attempt.
+                state.coach.busy = false;
+                $('#coach-send').disabled = false;
+
+                setCoachState('speaking');
+                speakText(answer.reply || '');
+            }).catch(function (error) {
+                state.coach.busy = false;
+                $('#coach-send').disabled = false;
+                setCoachState('idle');
+                setCoachStatus(error.message, 'error');
+            });
+        }
+
+        function renderAnswer(answer) {
+            var panel = $('#coach-answer');
+            panel.classList.remove('hidden');
+
+            setText('#answer-corrected', answer.corrected || '');
+            setText('#answer-reply', answer.reply || '');
+
+            var tipWrap = $('#answer-tip-wrap');
+            if (answer.tip) {
+                setText('#answer-tip', answer.tip);
+                tipWrap.classList.remove('hidden');
+            } else {
+                tipWrap.classList.add('hidden');
+            }
+
+            var meta = [];
+            if (answer.provider) { meta.push('provider: ' + answer.provider); }
+            if (answer.model) { meta.push('model: ' + answer.model); }
+            setText('#answer-meta', meta.join(' · '));
+        }
+
+        function appendTurn(role, content, tip) {
+            var transcript = $('#coach-transcript');
+            var empty = $('#transcript-empty');
+            if (empty) { empty.classList.add('hidden'); }
+
+            var bubble = document.createElement('div');
+            bubble.className = role === 'user'
+                ? 'ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-indigo-600/20 border border-indigo-500/30 px-4 py-3'
+                : 'mr-auto max-w-[85%] rounded-2xl rounded-bl-sm bg-slate-900/70 border border-slate-800 px-4 py-3';
+
+            bubble.appendChild(makeEl('div',
+                'text-[10px] font-bold uppercase tracking-wider mb-1.5 ' + (role === 'user' ? 'text-indigo-300' : 'text-cyan-400'),
+                role === 'user' ? 'You' : 'A2M Coach'));
+            bubble.appendChild(makeEl('p', 'text-xs text-slate-200 leading-relaxed whitespace-pre-wrap break-words', content));
+
+            if (tip) {
+                var tipEl = makeEl('p', 'text-[11px] text-amber-300/90 mt-2 pt-2 border-t border-slate-800/70', 'Tip: ' + tip);
+                bubble.appendChild(tipEl);
+            }
+
+            transcript.appendChild(bubble);
+            transcript.scrollTop = transcript.scrollHeight;
+
+            var count = state.coach.history.length / 2;
+            setText('#turn-count', count + (count === 1 ? ' turn' : ' turns'));
+        }
+
+        // ========================================
+        // Speech output
+        // ========================================
+        function speakText(text) {
+            if (!text) {
+                setCoachState('idle');
+                return Promise.resolve();
+            }
+            // The token lets a later stopSpeaking() cancel speech that is
+            // still being fetched - otherwise the audio would start playing
+            // after the user had already started talking.
+            var token = ++state.coach.speakToken;
+            state.coach.speaking = true;
+            return speakWithServer(text, token).catch(function (error) {
+                setCoachStatus(
+                    'Server speech synthesis unavailable (' + error.message + '). Using the browser voice instead.',
+                    'error'
+                );
+                speakWithBrowser(text, token);
+            }).then(function () {
+                if (token !== state.coach.speakToken) { return; }
+                state.coach.speaking = false;
+                // Only go back to idle if nothing newer happened in the
+                // meantime - the user may already be recording again.
+                if (state.coach.phase === 'speaking') { setCoachState('idle'); }
+            });
+        }
+
+        // Stop the coach mid-sentence. Used when the user talks over it.
+        function stopSpeaking() {
+            state.coach.speakToken++;
+            if (state.coach.audio) {
+                try { state.coach.audio.pause(); } catch (error) { /* best effort */ }
+                state.coach.audio = null;
+            }
+            if ('speechSynthesis' in window) {
+                try { window.speechSynthesis.cancel(); } catch (error) { /* best effort */ }
+            }
+            state.coach.speaking = false;
+        }
+
+        function speakWithServer(text, token) {
+            return apiFetch('/api/ai/speak', {
+                method: 'POST',
+                body: { text: text, voice: $('#coach-voice').value }
+            }).then(function (response) {
+                return response.blob();
+            }).then(function (blob) {
+                // Cancelled while the audio was being fetched.
+                if (token !== state.coach.speakToken) { return false; }
+                var url = URL.createObjectURL(blob);
+                if (state.coach.audioUrl) {
+                    URL.revokeObjectURL(state.coach.audioUrl);
+                }
+                state.coach.audioUrl = url;
+
+                return new Promise(function (resolve, reject) {
+                    var audio = new Audio(url);
+                    state.coach.audio = audio;
+                    audio.onended = function () {
+                        state.coach.audio = null;
+                        resolve(true);
+                    };
+                    audio.onerror = function () {
+                        state.coach.audio = null;
+                        reject(new Error('audio playback failed'));
+                    };
+                    var played = audio.play();
+                    if (played && typeof played.catch === 'function') {
+                        played.catch(function () { reject(new Error('autoplay was blocked')); });
+                    }
+                });
+            });
+        }
+
+        function speakWithBrowser(text, token) {
+            if (!('speechSynthesis' in window)) { return; }
+            if (token !== state.coach.speakToken) { return; }
+            try {
+                window.speechSynthesis.cancel();
+                var utterance = new SpeechSynthesisUtterance(text);
+                var voices = window.speechSynthesis.getVoices() || [];
+                var preferred = null;
+                for (var i = 0; i < voices.length; i++) {
+                    if (voices[i].lang && voices[i].lang.indexOf('en') === 0) {
+                        preferred = voices[i];
+                        break;
+                    }
+                }
+                if (preferred) { utterance.voice = preferred; }
+                utterance.rate = 0.95;
+                utterance.pitch = 1;
+                window.speechSynthesis.speak(utterance);
+            } catch (error) {
+                /* speech is best-effort */
+            }
+        }
+        // ========================================
+        // Event wiring
+        // ========================================
+        function wireEvents() {
+            // --- Auth ---
+            $('#login-form').addEventListener('submit', handleLogin);
+            $('#logout-btn').addEventListener('click', handleLogout);
+
+            // --- Navigation ---
+            $$('.admin-nav-link').forEach(function (link) {
+                link.addEventListener('click', function () {
+                    setPage(link.getAttribute('data-page'));
+                });
+            });
+            $$('.admin-jump-inquiries').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    setPage('inquiries');
+                });
+            });
+            $('#sidebar-toggle').addEventListener('click', toggleSidebar);
+            $('#sidebar-backdrop').addEventListener('click', closeSidebar);
+
+            // --- Header actions ---
+            $('#header-refresh').addEventListener('click', function () {
+                if (state.page === 'visitors') {
+                    loadVisitors();
+                } else {
+                    loadStats();
+                }
+                loadAiStatus();
+            });
+            $('#ai-status-refresh').addEventListener('click', loadAiStatus);
+
+            // --- Inquiries: filter + search + pagination ---
+            $$('.inquiry-filter-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    state.filter = button.getAttribute('data-status');
+                    state.pagination.page = 1;
+                    $$('.inquiry-filter-btn').forEach(function (other) {
+                        var isActive = other === button;
+                        other.className = 'inquiry-filter-btn text-[11px] font-semibold px-3.5 py-2 rounded-xl border transition-colors ' +
+                            (isActive
+                                ? 'bg-indigo-500/20 border-indigo-500/40 text-indigo-200'
+                                : 'border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800/60');
+                    });
+                    loadInquiries();
+                });
+            });
+
+            var searchTimer = null;
+            $('#inquiry-search').addEventListener('input', function (event) {
+                var value = event.target.value.trim().toLowerCase();
+                window.clearTimeout(searchTimer);
+                searchTimer = window.setTimeout(function () {
+                    state.search = value;
+                    renderInquiries();
+                }, 200);
+            });
+
+            $('#page-prev').addEventListener('click', function () {
+                if (state.pagination.page > 1) {
+                    state.pagination.page -= 1;
+                    loadInquiries();
+                }
+            });
+            $('#page-next').addEventListener('click', function () {
+                if (state.pagination.page < state.pagination.total_pages) {
+                    state.pagination.page += 1;
+                    loadInquiries();
+                }
+            });
+
+            // --- Coach ---
+            $('#mic-btn').addEventListener('click', startCapture);
+            $('#coach-send').addEventListener('click', function () {
+                sendCoachText($('#coach-text').value);
+            });
+            $('#coach-text').addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    sendCoachText(event.target.value);
+                }
+            });
+            $('#answer-speak').addEventListener('click', function () {
+                var reply = $('#answer-reply').textContent;
+                if (!reply) { return; }
+                setCoachState('speaking');
+                speakText(reply);
+            });
+            $('#coach-clear').addEventListener('click', function () {
+                state.coach.history = [];
+                $('#coach-transcript').replaceChildren();
+                $('#transcript-empty').classList.remove('hidden');
+                $('#coach-answer').classList.add('hidden');
+                $('#coach-text').value = '';
+                setText('#turn-count', '0 turns');
+                setCoachStatus('');
+            });
+
+            // --- Coaching mode ---
+            setCoachMode('practice');
+            Array.prototype.forEach.call(
+                document.querySelectorAll('#coach-modes .coach-mode-btn'),
+                function (button) {
+                    button.addEventListener('click', function () {
+                        setCoachMode(button.getAttribute('data-mode'));
+                    });
+                }
+            );
+
+            // Mark the default filter button as active.
+            var defaultFilter = $('.inquiry-filter-btn[data-status="all"]');
+            if (defaultFilter) {
+                defaultFilter.className = 'inquiry-filter-btn text-[11px] font-semibold px-3.5 py-2 rounded-xl border transition-colors bg-indigo-500/20 border-indigo-500/40 text-indigo-200';
+            }
+        }
+
+        // ========================================
+        // Start
+        // ========================================
+        document.addEventListener('DOMContentLoaded', function () {
+            wireEvents();
+            setCoachState('idle');
+            bootstrap();
         });
-
-        async function loadDashboard() {
-            try {
-                const [inquiryRes, visitorRes] = await Promise.all([
-                    fetch('/admin/stats', { credentials: 'include' }),
-                    fetch('/api/visitors', { credentials: 'include' })
-                ]);
-
-                const inquiryStats = await inquiryRes.json();
-                const visitorStats = await visitorRes.json();
-
-                statElements.total.textContent = inquiryStats.total;
-                statElements.new.textContent = inquiryStats.new;
-                statElements.contacted.textContent = inquiryStats.contacted;
-                statElements.closed.textContent = inquiryStats.closed;
-
-                statElements.totalVisits.textContent = visitorStats.total_visits.toLocaleString();
-                statElements.todayVisits.textContent = visitorStats.today_visits.toLocaleString();
-                statElements.uniqueVisitors.textContent = visitorStats.unique_visitors.toLocaleString();
-                statElements.today.textContent = visitorStats.today_visits.toLocaleString();
-            } catch (e) {
-                console.error('Dashboard load error:', e);
-            }
-        }
-
-        let currentInquiryPage = 1;
-        const perPage = 20;
-
-        async function loadInquiries(page = 1) {
-            try {
-                const res = await fetch(`/admin/inquiries?page=${page}&per_page=20`, {
-                    credentials: 'include'
-                });
-                const data = await res.json();
-
-                const tbody = document.getElementById('inquiries-table');
-                tbody.innerHTML = data.inquiries.map(i => `
-                    <tr>
-                        <td>${i.id}</td>
-                        <td>${i.name}</td>
-                        <td>${i.email}</td>
-                        <td>${i.service.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
-                        <td><span class="badge badge-${i.status}">${i.status}</span></td>
-                        <td>${new Date(i.created_at).toLocaleDateString()}</td>
-                        <td>
-                            <select onchange="updateStatus(${i.id}, this.value)" class="form-select" style="padding: 4px 8px; border-radius: 4px; border: 1px solid #ddd;">
-                                <option value="new" ${i.status === 'new' ? 'selected' : ''}>New</option>
-                                <option value="contacted" ${i.status === 'contacted' ? 'selected' : ''}>Contacted</option>
-                                <option value="closed" ${i.status === 'closed' ? 'selected' : ''}>Closed</option>
-                            </select>
-                        </td>
-                    `).join('');
-
-                renderPagination(data.total, data.page, data.total_pages);
-            } catch (e) {
-                console.error('Load inquiries error:', e);
-            }
-        }
-
-        async function updateStatus(id, status) {
-            try {
-                await fetch(`/admin/inquiries/${id}/status`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status }),
-                    credentials: 'include'
-                });
-                loadInquiries(currentInquiryPage);
-            } catch (e) {
-                console.error('Update status error:', e);
-            }
-        }
-
-        function renderPagination(total, page, totalPages) {
-            const pagination = document.getElementById('pagination');
-            let html = '';
-
-            if (page > 1) {
-                html += `<button class="page-btn" onclick="loadInquiries(${page - 1})">Previous</button>`;
-            }
-
-            for (let i = Math.max(1, page - 2); i <= Math.min(totalPages, page + 2); i++) {
-                html += `<button class="page-btn ${i === page ? 'active' : ''}" onclick="loadInquiries(${i})">${i}</button>`;
-            }
-
-            if (page < totalPages) {
-                html += `<button class="page-btn" onclick="loadInquiries(${page + 1})">Next</button>`;
-            }
-
-            document.getElementById('pagination').innerHTML = html;
-        }
-
-        async function loadVisitorStats() {
-            try {
-                const res = await fetch('/api/visitors', { credentials: 'include' });
-                const stats = await res.json();
-
-                document.getElementById('visitor-stats').innerHTML = `
-                    <div class="stat-card">
-                        <div class="stat-label">Total Visits</div>
-                        <div class="stat-value">${stats.total_visits.toLocaleString()}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Today's Visits</div>
-                        <div class="stat-value">${stats.today_visits.toLocaleString()}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Unique Visitors</div>
-                        <div class="stat-value">${stats.unique_visitors.toLocaleString()}</div>
-                    </div>
-                `;
-            } catch (e) {
-                console.error('Visitor stats error:', e);
-            }
-        }
-
-        // Initialize
-        (async () => {
-            const authed = await checkAuth();
-            if (!authed) showLogin();
-        })();
+    })();
     </script>
+    </script>
+
 </body>
 </html>

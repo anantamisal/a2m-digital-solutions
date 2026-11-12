@@ -1,4 +1,14 @@
 # Docker ignore for backend
+#
+# The backend image is built with ./backend as its CONTEXT:
+#     docker build -f backend/Dockerfile.prod -t a2m-backend ./backend
+# so Docker uses THIS file, not the root-level .dockerignore.
+#
+# Dockerfile.prod ends with `COPY . .`, so anything not listed here lands
+# in an image layer. The two that matter:
+#   * .env    -> the NVIDIA key and the SMTP password, baked in forever
+#   * *.db   -> the live inquiry database, baked in and readable from
+#                the image even after the container is deleted
 __pycache__
 *.pyc
 *.pyo
@@ -15,20 +25,24 @@ htmlcov
 .venv
 venv
 env
+
+# Secrets - the container gets these from the read-only bind mount
+# ./backend/.env:/app/.env:ro declared in docker-compose.prod.yml.
 .env
 .env.*
 !.env.example
+
+# Data - the live database lives in ./backend/data, bind-mounted.
+# The repository root .gitignore has the same rules; both are needed.
+data/
 *.db
 *.sqlite
 *.sqlite3
-data/
+
+# Local artefacts
+node_modules/
+.vscode/
+.idea/
 *.log
 .DS_Store
 Thumbs.db
-*.swp
-*.swo
-*~
-.vscode
-.idea
-*.md
-!.dockerignore

@@ -132,6 +132,33 @@ class VisitorStats(BaseModel):
     unique_visitors: int
 
 
+# ========================================
+# AI Agent (NVIDIA NIM)
+# ========================================
+class AIChatRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=5000, description="What the user just said")
+    history: list[dict] = Field(default_factory=list, description="Prior turns of the conversation")
+    mode: str = Field(
+        "practice",
+        pattern="^(practice|interview|jobsearch)$",
+        description="Which kind of coaching the user wants: practice, interview or jobsearch",
+    )
+
+
+class AISpeakRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=2000, description="Text to speak aloud")
+    voice: str = Field("default", max_length=64)
+
+
+class AIChatResponse(BaseModel):
+    corrected: str = Field(..., description="The user's sentence in correct, natural English")
+    reply: str = Field(..., description="The coach's spoken reply")
+    tip: str = Field("", description="One short grammar/vocabulary tip")
+    model: str = Field("", description="Model that produced the reply")
+    provider: str = Field("", description="Which provider answered (pollinations, groq, nvidia)")
+    mode: str = Field("practice", description="The coaching mode that was used")
+
+
 # Service labels for email formatting
 SERVICE_LABELS = {
     "web-development": "Web Development",

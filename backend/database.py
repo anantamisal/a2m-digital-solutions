@@ -71,6 +71,20 @@ class AdminUser(Base):
         return f"<AdminUser(username='{self.username}')>"
 
 
+class AdminSession(Base):
+    """Server-side session for the admin dashboard cookie"""
+    __tablename__ = "admin_sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    token = Column(String(128), unique=True, nullable=False, index=True)
+    admin_id = Column(Integer, nullable=False, index=True)
+    expires_at = Column(DateTime, nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    def __repr__(self):
+        return f"<AdminSession(admin_id={self.admin_id}, expires_at={self.expires_at})>"
+
+
 def init_db():
     """Initialize database tables"""
     Base.metadata.create_all(bind=engine)
@@ -167,6 +181,36 @@ def get_visitor_stats(db: Session) -> dict:
     }
 
 
+# Which client IPs have already been counted today. Kept in memory on
+# purpose: it only feeds a daily counter, and resetting it when the backend
+# restarts is harmless.
+_visitor_ips: set = set()
+_visitor_day = None
+_MAX_TRACKED_IPS = 20000
+
+
+def register_visit(db: Session, ip_address: str = "") -> VisitorCount:
+    """Record one page view.
+
+    The IP is counted as a unique visitor only the first time it is seen on
+    a given day, which is what makes the "unique visitors" number meaningful.
+    """
+    global _visitor_day, _visitor_ips
+
+    today = date.today()
+    if _visitor_day != today:
+        _visitor_day = today
+        _visitor_ips = set()
+
+    is_unique = False
+    if ip_address and ip_address not in _visitor_ips:
+        if len(_visitor_ips) < _MAX_TRACKED_IPS:
+            _visitor_ips.add(ip_address)
+            is_unique = True
+
+    return increment_visitor_count(db, is_unique=is_unique)
+
+
 # Admin User Operations
 def get_admin_user(db: Session, username: str):
     """Get admin user by username"""
@@ -190,3 +234,36 @@ def update_last_login(db: Session, admin_id: int):
         db.commit()
         db.refresh(admin)
     return admin
+
+
+def create_admin_session(db: Session, token: str, admin_id: int, expires_at: datetime) -> AdminSession:
+    """Persist an admin session token"""
+    session = AdminSession(token=token, admin_id=admin_id, expires_at=expires_at)
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+    return session
+
+
+def get_admin_session(db: Session, token: str) -> Optional[AdminSession]:
+    """Look up a session token"""
+    return db.query(AdminSession).filter(AdminSession.token == token).first()
+
+
+def delete_admin_session(db: Session, token: str):
+    """Delete a session token (logout)"""
+    session = db.query(AdminSession).filter(AdminSession.token == token).first()
+    if session:
+        db.delete(session)
+        db.commit()
+    return session
+
+
+def purge_expired_sessions(db: Session) -> int:
+    """Remove expired sessions - returns how many were deleted"""
+    expired = db.query(AdminSession).filter(AdminSession.expires_at < datetime.utcnow()).all()
+    for session in expired:
+        db.delete(session)
+    if expired:
+        db.commit()
+    return len(expired)

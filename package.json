@@ -1,0 +1,13 @@
+{
+  "name": "a2m-digital-solutions",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A2M Digital Solutions - static site + FastAPI backend",
+  "scripts": {
+    "build:css": "tailwindcss -i ./tailwind.input.css -o ./tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./tailwind.input.css -o ./tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  }
+}

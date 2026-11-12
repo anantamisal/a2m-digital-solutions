@@ -1,0 +1,9 @@
+/* Tailwind input file.
+ *
+ * Compiled to ./tailwind.css by `npm run build:css`.
+ * The custom component classes (.glass-panel, .text-gradient, ...) stay in the
+ * inline <style> block of index.html / admin.html, exactly where they were.
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

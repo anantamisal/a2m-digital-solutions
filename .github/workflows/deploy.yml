@@ -1,0 +1,248 @@
+# =====================================================================
+# GitHub Actions CI/CD for A2M Digital Solutions
+#
+# Builds the backend and frontend images, pushes them to GHCR, and
+# deploys them to the Oracle Cloud instance over SSH.
+# =====================================================================
+name: Deploy to Oracle Cloud
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Byte-compile the backend
+        working-directory: backend
+        run: python -m compileall -q . && echo "✅ Syntax OK"
+
+      - name: Import the app and count routes
+        working-directory: backend
+        env:
+          DATABASE_URL: sqlite:///./ci-test.db
+          ADMIN_PASSWORD: ci-test-password
+        run: |
+          python -c "
+          from main import app
+          paths = sorted({r.path for r in app.routes if hasattr(r, 'path')})
+          print('✅ App imported,', len(paths), 'routes')
+          assert '/health' in paths, 'missing /health route'
+          assert '/api/admin/login' in paths, 'missing admin login route'
+          assert '/api/ai/chat' in paths, 'missing AI chat route'
+          "
+
+  build-backend:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile.prod
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-frontend:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.frontend
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to Oracle Cloud
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.ORACLE_HOST }}
+          username: ubuntu
+          key: ${{ secrets.ORACLE_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/a2m-digital-solutions
+
+            # Scoped stash + fast-forward only. A blanket `git stash` used
+            # to revert the SQLite database and discard live inquiries.
+            git stash push -- '*.py' '*.html' '*.yml' '*.yaml' '*.sh' '*.conf' '*.css' '*.js' >/dev/null 2>&1 || true
+            git pull --ff-only origin main
+
+            # ----------------------------------------------------------------
+            # Update backend/.env from GitHub secrets.
+            #
+            # The previous version did `cat > backend/.env << EOF`, which
+            # REPLACED the file and destroyed any key that was not managed
+            # by CI - including a hand-pasted NVIDIA_API_KEY. This version
+            # updates only the keys below and leaves everything else
+            # untouched. Keys whose secret is empty are skipped.
+            # ----------------------------------------------------------------
+            export A2M_ENVIRONMENT=production
+            export A2M_DEBUG=false
+            export A2M_SMTP_HOST='${{ secrets.SMTP_HOST }}'
+            export A2M_SMTP_PORT='${{ secrets.SMTP_PORT }}'
+            export A2M_SMTP_USERNAME='${{ secrets.SMTP_USERNAME }}'
+            export A2M_SMTP_PASSWORD='${{ secrets.SMTP_PASSWORD }}'
+            export A2M_FROM_EMAIL='${{ secrets.FROM_EMAIL }}'
+            export A2M_FROM_NAME='${{ secrets.FROM_NAME }}'
+            export A2M_TO_EMAIL='${{ secrets.TO_EMAIL }}'
+            export A2M_ADMIN_USERNAME='${{ secrets.ADMIN_USERNAME }}'
+            export A2M_ADMIN_PASSWORD='${{ secrets.ADMIN_PASSWORD }}'
+            # The live site is HTTPS, so the session cookie must be
+            # marked Secure. Default to true if the secret is not set.
+            export A2M_COOKIE_SECURE='${{ secrets.COOKIE_SECURE || 'true' }}'
+            export A2M_NVIDIA_API_KEY='${{ secrets.NVIDIA_API_KEY }}'
+            export A2M_GROQ_API_KEY='${{ secrets.GROQ_API_KEY }}'
+
+            python3 - <<'PYEOF'
+            import os, pathlib
+
+            KEYS = {
+                "ENVIRONMENT":      "A2M_ENVIRONMENT",
+                "DEBUG":            "A2M_DEBUG",
+                "SMTP_HOST":        "A2M_SMTP_HOST",
+                "SMTP_PORT":        "A2M_SMTP_PORT",
+                "SMTP_USERNAME":    "A2M_SMTP_USERNAME",
+                "SMTP_PASSWORD":    "A2M_SMTP_PASSWORD",
+                "FROM_EMAIL":       "A2M_FROM_EMAIL",
+                "FROM_NAME":        "A2M_FROM_NAME",
+                "TO_EMAIL":         "A2M_TO_EMAIL",
+                "ADMIN_USERNAME":   "A2M_ADMIN_USERNAME",
+                "ADMIN_PASSWORD":   "A2M_ADMIN_PASSWORD",
+                "COOKIE_SECURE":    "A2M_COOKIE_SECURE",
+                "NVIDIA_API_KEY":   "A2M_NVIDIA_API_KEY",
+                "GROQ_API_KEY":     "A2M_GROQ_API_KEY",
+            }
+
+            path = pathlib.Path("backend/.env")
+            lines = path.read_text().splitlines() if path.exists() else []
+
+            # Index of the existing "KEY=..." lines so we can replace in
+            # place instead of appending duplicates.
+            index = {}
+            for i, line in enumerate(lines):
+                if line and not line.startswith("#") and "=" in line:
+                    index[line.split("=", 1)[0]] = i
+
+            changed = []
+            for key, env_name in KEYS.items():
+                value = os.environ.get(env_name, "")
+                if not value:
+                    continue
+                new_line = f"{key}={value}"
+                if key in index:
+                    lines[index[key]] = new_line
+                else:
+                    lines.append(new_line)
+                changed.append(key)
+
+            if not path.exists() and not changed:
+                print("WARNING: no secrets provided and backend/.env does not exist.")
+            path.write_text("\n".join(lines) + "\n")
+            print(f"backend/.env updated: {', '.join(changed) if changed else '(nothing)'}")
+
+            # ----------------------------------------------------------------
+            # Refuse to deploy with the default admin password.
+            #
+            # The old compose file injected ADMIN_PASSWORD=admin123 from the
+            # shell default, which OVERRODE the value in this file. A site
+            # reachable on the internet with a published default password is
+            # worse than a failed deployment, so stop here.
+            # ----------------------------------------------------------------
+            import sys
+            env_now = {}
+            for line in path.read_text().splitlines():
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    env_now[k.strip()] = v.strip()
+            weak = env_now.get("ADMIN_PASSWORD", "")
+            if not weak or weak in ("admin123", "change-me", "changeme"):
+                print("ERROR: ADMIN_PASSWORD is missing or still the default.")
+                print("       Set the ADMIN_PASSWORD GitHub secret and push again.")
+                sys.exit(1)
+            print("ADMIN_PASSWORD is set to a non-default value.")
+            PYEOF
+
+            # Deploy
+            mkdir -p certbot/conf certbot/www
+
+            # The inquiry database lives in ./backend/data, which is
+            # bind-mounted into the container. Docker creates a missing
+            # bind-mount source as ROOT and the container runs as the
+            # non-root user with UID 1000, so the database could not be
+            # written. Create it as the host user first.
+            mkdir -p backend/data
+            chown 1000:1000 backend/data 2>/dev/null || chmod 0777 backend/data
+            echo "backend/data owner: $(stat -c '%U:%G (%a)' backend/data)"
+
+            docker compose -f docker-compose.prod.yml down -v 2>/dev/null || true
+            docker rm -f a2m-frontend a2m-backend a2m-certbot 2>/dev/null || true
+
+            docker pull ghcr.io/${{ github.repository }}-backend:latest
+            docker pull ghcr.io/${{ github.repository }}-frontend:latest
+
+            docker tag ghcr.io/${{ github.repository }}-backend:latest a2m-backend:latest
+            docker tag ghcr.io/${{ github.repository }}-frontend:latest a2m-frontend:latest
+
+            docker compose -f docker-compose.prod.yml up -d
+
+            echo "✅ Deployment complete!"
+            docker compose -f docker-compose.prod.yml ps
