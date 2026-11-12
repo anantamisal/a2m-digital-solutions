@@ -20,7 +20,19 @@ cd "$APP_DIR" 2>/dev/null || {
     cd "$APP_DIR"
 }
 
-compose() { docker compose -f "$COMPOSE_FILE" "$@"; }
+# Detect Docker Compose command: prefer `docker compose` (v2 plugin),
+# fall back to `docker-compose` (v1 binary).
+if docker compose version >/dev/null 2>&1; then
+  COMPOSE_CMD="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+  COMPOSE_CMD="docker-compose"
+else
+  echo "ERROR: neither 'docker compose' nor 'docker-compose' found" >&2
+  exit 1
+fi
+echo "Using compose command: $COMPOSE_CMD"
+
+compose() { $COMPOSE_CMD -f "$COMPOSE_FILE" "$@"; }
 
 # Scoped stash: a blanket `git stash` used to revert the tracked SQLite
 # database and discard live inquiries on every deploy.

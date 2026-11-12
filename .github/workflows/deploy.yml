@@ -121,10 +121,33 @@ jobs:
           script: |
             cd ~/a2m-digital-solutions
 
+            # ----------------------------------------------------------------
+            # Clean up untracked files from previous manual deploys that would
+            # block `git pull --ff-only`. Preserve the data dir, certbot dir,
+            # and the generated backend/.env (will be updated below).
+            # ----------------------------------------------------------------
+            git status --porcelain | grep '^??' | awk '{print $2}' | \
+              grep -vE '^(backend/data|certbot|backend/.env)' | xargs -r rm -rf
+
             # Scoped stash + fast-forward only. A blanket `git stash` used
             # to revert the SQLite database and discard live inquiries.
             git stash push -- '*.py' '*.html' '*.yml' '*.yaml' '*.sh' '*.conf' '*.css' '*.js' >/dev/null 2>&1 || true
             git pull --ff-only origin main
+
+            # ----------------------------------------------------------------
+            # Detect Docker Compose command: prefer `docker compose` (v2 plugin),
+            # fall back to `docker-compose` (v1 binary). The Oracle base image
+            # may have either.
+            # ----------------------------------------------------------------
+            if docker compose version >/dev/null 2>&1; then
+              COMPOSE="docker compose"
+            elif command -v docker-compose >/dev/null 2>&1; then
+              COMPOSE="docker-compose"
+            else
+              echo "ERROR: neither 'docker compose' nor 'docker-compose' found"
+              exit 1
+            fi
+            echo "Using compose command: $COMPOSE"
 
             # ----------------------------------------------------------------
             # Update backend/.env from GitHub secrets.
@@ -233,7 +256,7 @@ jobs:
             chown 1000:1000 backend/data 2>/dev/null || chmod 0777 backend/data
             echo "backend/data owner: $(stat -c '%U:%G (%a)' backend/data)"
 
-            docker compose -f docker-compose.prod.yml down -v 2>/dev/null || true
+            $COMPOSE -f docker-compose.prod.yml down -v 2>/dev/null || true
             docker rm -f a2m-frontend a2m-backend a2m-certbot 2>/dev/null || true
 
             docker pull ghcr.io/${{ github.repository }}-backend:latest
@@ -242,7 +265,7 @@ jobs:
             docker tag ghcr.io/${{ github.repository }}-backend:latest a2m-backend:latest
             docker tag ghcr.io/${{ github.repository }}-frontend:latest a2m-frontend:latest
 
-            docker compose -f docker-compose.prod.yml up -d
+            $COMPOSE -f docker-compose.prod.yml up -d
 
             echo "✅ Deployment complete!"
-            docker compose -f docker-compose.prod.yml ps
+            $COMPOSE -f docker-compose.prod.yml ps
