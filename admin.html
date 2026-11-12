@@ -1604,10 +1604,12 @@
             };
 
             recognition.onresult = function (event) {
-                // Rebuild the whole transcript from event.results — in continuous
-                // mode this holds every final line plus the current interim one.
+                // In continuous mode, event.results contains ALL results since start.
+                // Only process NEW results (from event.resultIndex onwards) to avoid
+                // duplicating old transcripts.
                 var text = '';
-                for (var i = 0; i < event.results.length; i++) {
+                var start = event.resultIndex || 0;
+                for (var i = start; i < event.results.length; i++) {
                     var alternative = event.results[i][0];
                     if (alternative && alternative.transcript) {
                         text += alternative.transcript;
@@ -1617,8 +1619,10 @@
 
                 state.coach.transcript = text;
 
+                // Only auto-submit if the user explicitly clicked stop.
+                // In continuous mode, final results arrive while still speaking -
+                // we must NOT submit on every final result.
                 if (state.coach.stopping) {
-                    // The user clicked stop — send it.
                     submitBrowserTranscript();
                     return;
                 }
