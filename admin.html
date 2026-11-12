@@ -1659,9 +1659,65 @@
                     return;
                 }
                 // Browser ended on its own (pause, silence, permission denied).
+                // In continuous mode we WANT to keep listening — restart it.
                 // Do NOT auto-submit — leave the transcript in the box so the
                 // user can review/edit and click Send when ready.
                 if (!state.coach.busy) {
+                    state.coach.stopping = false;
+                    // Restart recognition to continue listening in continuous mode
+                    try {
+                        var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                        var recognition = new Recognition();
+                        recognition.lang = 'en-US';
+                        recognition.interimResults = true;
+                        recognition.maxAlternatives = 1;
+                        recognition.continuous = true;
+                        recognition.onresult = function (event) {
+                            var text = '';
+                            var start = event.resultIndex || 0;
+                            for (var i = start; i < event.results.length; i++) {
+                                var alternative = event.results[i][0];
+                                if (alternative && alternative.transcript) {
+                                    text += alternative.transcript;
+                                }
+                            }
+                            text = text.trim();
+
+                            state.coach.transcript = text;
+
+                            if (state.coach.stopping) {
+                                submitBrowserTranscript();
+                                return;
+                            }
+
+                            if (text) {
+                                $('#coach-text').value = text;
+                            }
+                        };
+                        recognition.onerror = function (event) {
+                            var reason = (event && event.error) ? event.error : 'unknown error';
+                            if (reason === 'aborted' && state.coach.stopping) {
+                                return;
+                            }
+                            state.coach.recognition = null;
+                            state.coach.stopping = false;
+                            if (!state.coach.busy) {
+                                setCoachState('idle');
+                            }
+                            setCoachStatus(
+                                'Browser speech recognition failed (' + reason + '). Type your sentence below instead.',
+                                'error'
+                            );
+                        };
+                        recognition.onend = arguments.callee;
+                        state.coach.recognition = recognition;
+                        recognition.start();
+                        setCoachState('recording');
+                        return;
+                    } catch (error) {
+                        // If restart fails, fall back to idle
+                        console.warn('Failed to restart speech recognition:', error);
+                    }
                     state.coach.stopping = false;
                     setCoachState('idle');
                 }
